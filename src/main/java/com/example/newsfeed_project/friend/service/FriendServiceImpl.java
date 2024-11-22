@@ -8,6 +8,10 @@ import com.example.newsfeed_project.member.dto.MemberDto;
 import com.example.newsfeed_project.member.entity.Member;
 import com.example.newsfeed_project.member.repository.MemberRepository;
 import com.example.newsfeed_project.member.service.MemberService;
+import com.example.newsfeed_project.newsfeed.dto.NewsfeedResponseDto;
+import com.example.newsfeed_project.newsfeed.entity.Newsfeed;
+import com.example.newsfeed_project.newsfeed.repository.NewsfeedLikeRepository;
+import com.example.newsfeed_project.newsfeed.repository.NewsfeedRepository;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
@@ -28,11 +32,15 @@ public class FriendServiceImpl implements FriendService {
     private final FriendRepository friendRepository;
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
+    private final NewsfeedLikeRepository newsfeedLikeRepository;
+    private final NewsfeedRepository newsfeedRepository;
 
-    public FriendServiceImpl(FriendRepository friendRepository, MemberRepository memberRepository, PasswordEncoder passwordEncoder) {
+    public FriendServiceImpl(FriendRepository friendRepository, MemberRepository memberRepository, NewsfeedRepository newsfeedRepository, PasswordEncoder passwordEncoder, NewsfeedLikeRepository newsfeedLikeRepository) {
         this.friendRepository = friendRepository;
         this.memberRepository = memberRepository;
+        this.newsfeedRepository = newsfeedRepository;
         this.passwordEncoder = passwordEncoder;
+        this.newsfeedLikeRepository = newsfeedLikeRepository;
     }
 
     @Override
@@ -116,7 +124,6 @@ public class FriendServiceImpl implements FriendService {
 
             FriendDto friendDto = FriendDto.builder()
                     .id(friend.getId())
-                    .requestFriendId(friend.getRequestFriend().getId())
                     .responseFriendId(friend.getResponseFriend().getId())
                     .build();
 
@@ -127,6 +134,27 @@ public class FriendServiceImpl implements FriendService {
         return new PageImpl<>(friendDtos, pageable, friends.getTotalElements());
     }
 
+    @Transactional(readOnly = true)
+    public Page<NewsfeedResponseDto> findFriendsNewsfeed(int page, int size, String email) {
+        // 친구 목록 가져오기
+        size = Math.min(size, 10);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "updatedAt")); // 게시물은 최신순 정렬
+        List<Long> friendIds = friendRepository.findApprovedFriendIdsByEmail(email, "APPROVED");
+
+        // 승인된 친구들의 게시물 조회
+        Page<Newsfeed> newsfeeds = newsfeedRepository.findByMemberIdIn(friendIds, pageable);
+
+        // NewsfeedResponseDto로 변환
+        List<NewsfeedResponseDto> newsfeedDtos = new ArrayList<>();
+
+        for (Newsfeed newsfeed : newsfeeds.getContent()) {
+            long likeCount = newsfeedLikeRepository.countByNewsfeedId(newsfeed.getId());
+            NewsfeedResponseDto dto = NewsfeedResponseDto.toDto(newsfeed);
+            newsfeedDtos.add(dto);
+        }
+        // Page 객체 반환
+        return new PageImpl<>(newsfeedDtos, pageable, newsfeeds.getTotalElements());
+    }
 
     // 친구 삭제
     @Override

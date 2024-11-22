@@ -2,6 +2,7 @@ package com.example.newsfeed_project.friend.controller;
 
 import com.example.newsfeed_project.friend.dto.FriendDto;
 import com.example.newsfeed_project.friend.service.FriendService;
+import com.example.newsfeed_project.newsfeed.dto.NewsfeedResponseDto;
 import com.example.newsfeed_project.util.SessionUtil;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.data.domain.Page;
@@ -31,7 +32,16 @@ public class FriendController {
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+    //친구 뉴스피드 리스트 조회
+    @GetMapping("/friendnewsfeed")
+    public ResponseEntity<?> getFriendNewsfeed(@RequestParam(defaultValue = "0") int page,
+                                               @RequestParam(defaultValue = "10") int size,
+                                               HttpSession session) {
+        String loggedInUserEmail = SessionUtil.validateSession(session);
+        Page<NewsfeedResponseDto> response = friendService.findFriendsNewsfeed(page, size, loggedInUserEmail);
 
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
     // 친구 요청 생성
     @PostMapping("/request")
     public ResponseEntity<String> sendFriendRequest(@RequestBody FriendDto friendDto, HttpSession session) {
