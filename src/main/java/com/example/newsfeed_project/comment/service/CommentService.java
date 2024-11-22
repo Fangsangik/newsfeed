@@ -5,7 +5,7 @@ import com.example.newsfeed_project.comment.dto.CommentResponseDto;
 import com.example.newsfeed_project.comment.entity.Comment;
 import com.example.newsfeed_project.comment.repository.CommentLikeRepository;
 import com.example.newsfeed_project.comment.repository.CommentRepository;
-import com.example.newsfeed_project.exception.AuthorException;
+import com.example.newsfeed_project.exception.NoAuthorizedException;
 import com.example.newsfeed_project.member.entity.Member;
 import com.example.newsfeed_project.member.service.MemberService;
 import com.example.newsfeed_project.newsfeed.entity.Newsfeed;
@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static com.example.newsfeed_project.exception.ErrorCode.NO_AUTHOR;
+import static com.example.newsfeed_project.exception.ErrorCode.NO_AUTHOR_CHANGE;
 
 @Service
 public class CommentService {
@@ -109,19 +109,19 @@ public class CommentService {
         if (newsfeed != null && comment != null) {
             if(!comment.getMember().getEmail().equals(email)) {
                 if (!newsfeed.getMember().getEmail().equals(email)) {
-                    throw new AuthorException(NO_AUTHOR);
+                    throw new NoAuthorizedException(NO_AUTHOR_CHANGE);
                 }
             }
         } else if (newsfeed != null && comment == null) {
             if (!newsfeed.getMember().getEmail().equals(email)) {
-                throw new AuthorException(NO_AUTHOR);
+                throw new NoAuthorizedException(NO_AUTHOR_CHANGE);
             }
         } else if (newsfeed == null && comment != null) {
             if (!comment.getMember().getEmail().equals(email)) {
-                throw new AuthorException(NO_AUTHOR);
+                throw new NoAuthorizedException(NO_AUTHOR_CHANGE);
             }
         }else {
-            throw new AuthorException(NO_AUTHOR);
+            throw new NoAuthorizedException(NO_AUTHOR_CHANGE);
         }
     }
 }

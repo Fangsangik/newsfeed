@@ -19,16 +19,16 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/comment")
+@RequestMapping("/comments")
 @RequiredArgsConstructor
 public class CommentController {
 
     private final CommentService commentService;
 
     //댓글 생성
-    @PostMapping("/{newsfeedId}")
+    @PostMapping
     public ResponseEntity<CommentResponseDto> createComment(
-            @PathVariable Long newsfeedId,
+            Long newsfeedId,
             @Valid @RequestBody CommentRequestDto dto,
             HttpServletRequest request) {
         HttpSession session = request.getSession(false);
@@ -37,9 +37,9 @@ public class CommentController {
     }
 
     //댓글 전체 조회
-    @GetMapping("/newsfeed/{newsfeedId}")
+    @GetMapping
     public ResponseEntity<List<CommentResponseDto>> findAll(
-            @PathVariable Long newsfeedId,
+            Long newsfeedId,
             @PageableDefault(size = 10,sort = "updatedAt", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
@@ -56,9 +56,9 @@ public class CommentController {
     }
 
     //댓글 수정
-    @PutMapping("/{id}")
+    @PutMapping
     public ResponseEntity<?> updateComment(
-            @PathVariable Long id,
+            Long id,
             @Valid @RequestBody CommentRequestDto dto,
             HttpServletRequest request) {
         HttpSession session = request.getSession(false);
@@ -68,9 +68,9 @@ public class CommentController {
     }
 
     //댓글 삭제
-    @DeleteMapping("/{commentId}")
+    @DeleteMapping
     public ResponseEntity<?> deleteComment(
-            @PathVariable Long commentId,
+            Long commentId,
             HttpServletRequest request){
         HttpSession session = request.getSession(false);
         commentService.deleteComment(commentId, SessionUtil.validateSession(session));
@@ -78,3 +78,4 @@ public class CommentController {
         return ResponseEntity.status(HttpStatus.OK).body("댓글 삭제가 되었습니다.");
     }
 }
+

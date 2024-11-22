@@ -17,13 +17,13 @@ public class CommentLikeController {
 
     // 좋아요 및 좋아요 해제
 //    @PostMapping(value = "/comment/{commentId}/likes", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PatchMapping("/comment/{commentId}/likes")
+    @PatchMapping("/comments/{commentId}/likes")
     public ResponseEntity<?> commentLikeAndDelLike(
             @PathVariable Long commentId,
             HttpServletRequest request
     ) {
         String email = SessionUtil.validateSession(request.getSession());
-        CommentLikeResponseDto dto = commentLikeService.commentLikeorDelLike(email, commentId);
+        CommentLikeResponseDto dto = commentLikeService.CommentLikeOrUnLike(email, commentId);
         return ResponseEntity.status(HttpStatus.OK).body(dto);
     }
 }

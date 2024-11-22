@@ -4,9 +4,11 @@ import com.example.newsfeed_project.member.entity.Member;
 import com.example.newsfeed_project.newsfeed.entity.Newsfeed;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@NoArgsConstructor
 public class CommentLike {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,12 +22,8 @@ public class CommentLike {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    public void setMember(Member member) {
+    public CommentLike(Comment comment, Member member) {
+        this.comment = comment;
         this.member = member;
     }
-
-    public void setComment(Comment comment) {
-        this.comment = comment;
-    }
-
 }
