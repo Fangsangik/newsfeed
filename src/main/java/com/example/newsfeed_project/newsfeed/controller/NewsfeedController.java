@@ -4,16 +4,13 @@ import static java.util.Objects.isNull;
 
 import com.example.newsfeed_project.newsfeed.dto.NewsfeedRequestDto;
 import com.example.newsfeed_project.newsfeed.dto.NewsfeedResponseDto;
-import com.example.newsfeed_project.newsfeed.dto.NewsfeedTermRequestDto;
 import com.example.newsfeed_project.newsfeed.service.NewsfeedService;
-import com.example.newsfeed_project.util.SessionUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;

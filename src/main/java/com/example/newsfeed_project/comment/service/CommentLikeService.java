@@ -17,8 +17,8 @@ public class CommentLikeService {
     private final CommentService commentService;
     private final CommentLikeRepository commentLikeRepository;
 
-    public CommentLikeResponseDto CommentLikeOrUnLike(String email, Long commentId) {
-        Member member = memberService.getByMemberByEmail(email);
+    public CommentLikeResponseDto CommentLikeOrUnLike(Long loggedInUserId, Long commentId) {
+        Member member = memberService.validateId(loggedInUserId);
         Comment comment = commentService.findCommentByIdOrElseThrow(commentId);
         CommentLike commentLike = new CommentLike(comment, member);
 
