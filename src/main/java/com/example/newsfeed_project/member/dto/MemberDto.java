@@ -75,4 +75,17 @@ public class MemberDto {
                 .createdAt(this.createdAt)
                 .build();
     }
+
+    public static Member toEntity(MemberDto memberDto) {
+        return Member.builder()
+                .name(memberDto.getName())
+                .email(memberDto.getEmail())
+                .password(memberDto.getPassword())
+                .phoneNumber(memberDto.getPhoneNumber())
+                .address(memberDto.getAddress())
+                .age(memberDto.getAge())
+                .image(memberDto.getImage())
+                .deletedAt(memberDto.getDeletedAt())
+                .build();
+    }
 }
