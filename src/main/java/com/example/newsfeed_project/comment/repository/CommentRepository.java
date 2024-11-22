@@ -11,5 +11,5 @@ import java.util.List;
 public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findByFeedId(Long newsfeedId, Pageable pageable);
 
-    void deleteByNewsfeedId(Long id);
+    List<Comment> findByFeedIdAndMemberId(Long feed_id, Long member_id);
 }
