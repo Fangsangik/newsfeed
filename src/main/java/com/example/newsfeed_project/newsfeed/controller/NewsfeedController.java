@@ -8,6 +8,7 @@ import com.example.newsfeed_project.util.SessionUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -43,7 +44,7 @@ public class NewsfeedController {
       HttpServletRequest request
   ) {
     HttpSession session = request.getSession(false);
-    String email = SessionUtil.validateSession(session);
+    String email = session.getAttribute("email").toString();
     NewsfeedResponseDto newsfeedResponseDto = newsfeedService.save(newsfeedRequestDto, email);
     return new ResponseEntity<>(newsfeedResponseDto, HttpStatus.CREATED);
   }
@@ -52,34 +53,15 @@ public class NewsfeedController {
   @GetMapping
   public ResponseEntity<List<NewsfeedResponseDto>> findAll(
       @RequestParam(required = false, defaultValue = "false") boolean isLike,
+      @RequestParam(required = false) Long memberId,
+      @RequestParam(required = false, defaultValue = "null") String startDateStr,
+      @RequestParam(required = false, defaultValue = "null") String endDateStr,
       @PageableDefault(size = 10, sort = "updatedAt", direction = Direction.DESC)
       Pageable pageable
   ){
-    List<NewsfeedResponseDto> list = newsfeedService.findAll(isLike, pageable);
-    return new ResponseEntity<>(list, HttpStatus.OK);
-  }
-
-  //사용자를 기준으로 조회를 하는 메서드 / 좋아요순 정렬기능이 있음
-  @GetMapping("/member/{memberId}")
-  public ResponseEntity<List<NewsfeedResponseDto>> findByMemberId(
-      @PathVariable long memberId,
-      @RequestParam(required = false, defaultValue = "false") boolean isLike,
-      @PageableDefault(size = 10, sort = "createdAt", direction = Direction.DESC)
-      Pageable pageable
-  ){
-    List<NewsfeedResponseDto> list = newsfeedService.findByMemberId(memberId, isLike, pageable);
-    return new ResponseEntity<>(list, HttpStatus.OK);
-  }
-
-  //기간검색 / 좋아요순 정렬기능이 있음
-  @GetMapping("/term")
-  public ResponseEntity<List<NewsfeedResponseDto>> findAllByTerm(
-      @Valid @RequestBody NewsfeedTermRequestDto newsfeedTermRequestDto,
-      @RequestParam(required = false, defaultValue = "false") boolean isLike,
-      @PageableDefault(size = 10, sort = "updatedAt", direction = Direction.DESC)
-      Pageable pageable
-  ){
-    List<NewsfeedResponseDto> list = newsfeedService.findAllByTerm(newsfeedTermRequestDto, isLike, pageable);
+    LocalDate startDate = (!"null".equals(startDateStr)/*startDateStr.isEmpty()*/) ? LocalDate.parse(startDateStr) : LocalDate.EPOCH;
+    LocalDate endDate = (!"null".equals(endDateStr) /*endDateStr.isEmpty()*/) ? LocalDate.parse(endDateStr) : LocalDate.now();
+    List<NewsfeedResponseDto> list = newsfeedService.findNewsfeed(isLike, memberId, startDate, endDate, pageable);
     return new ResponseEntity<>(list, HttpStatus.OK);
   }
 
@@ -91,7 +73,7 @@ public class NewsfeedController {
       HttpServletRequest request
   ){
     HttpSession session = request.getSession(false);
-    String email = SessionUtil.validateSession(session);
+    String email = session.getAttribute("email").toString();
     NewsfeedResponseDto newsfeedResponseDto = newsfeedService.updateNewsfeed(id, newsfeedRequestDto, email);
     return new ResponseEntity<>(newsfeedResponseDto, HttpStatus.OK);
   }
@@ -103,7 +85,7 @@ public class NewsfeedController {
       HttpServletRequest request
   ){
     HttpSession session = request.getSession(false);
-    String email = SessionUtil.validateSession(session);
+    String email = session.getAttribute("email").toString();
     newsfeedService.delete(id, email);
     return new ResponseEntity<>("Deleted", HttpStatus.OK);
   }

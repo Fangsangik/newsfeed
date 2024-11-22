@@ -5,6 +5,7 @@ import com.example.newsfeed_project.newsfeed.dto.NewsfeedResponseDto;
 import com.example.newsfeed_project.newsfeed.dto.NewsfeedTermRequestDto;
 import com.example.newsfeed_project.newsfeed.entity.Newsfeed;
 import jakarta.validation.Valid;
+import java.time.LocalDate;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 
@@ -21,7 +22,5 @@ public interface NewsfeedService {
 
   Newsfeed findNewsfeedByIdOrElseThrow(Long id);
 
-  List<NewsfeedResponseDto> findByMemberId(long memberId, boolean isLike, Pageable pageable);
-
-  List<NewsfeedResponseDto> findAllByTerm(@Valid NewsfeedTermRequestDto newsfeedTermRequestDto, boolean like, Pageable pageable);
+  List<NewsfeedResponseDto> findNewsfeed(boolean isLike, Long memberId, LocalDate startDate, LocalDate endDate, Pageable pageable);
 }

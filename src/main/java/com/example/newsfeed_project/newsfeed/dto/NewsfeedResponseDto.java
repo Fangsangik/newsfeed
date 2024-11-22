@@ -19,11 +19,11 @@ public class NewsfeedResponseDto {
 
   private String author;
 
-  private long like;
+  private long likeCount;
 
   private LocalDateTime updatedAt;
 
-  public static NewsfeedResponseDto toDto(Newsfeed newsfeed, long like) {
+  public static NewsfeedResponseDto toDto(Newsfeed newsfeed) {
     String email = "";
     if(newsfeed.getMember().getDeletedAt() == null) {
       email = newsfeed.getMember().getEmail();
@@ -35,7 +35,7 @@ public class NewsfeedResponseDto {
         newsfeed.getTitle(),
         newsfeed.getContent(),
         email,
-        like,
+        newsfeed.getLikeCount(),
         newsfeed.getUpdatedAt()
     );
   }

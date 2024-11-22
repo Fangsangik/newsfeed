@@ -19,6 +19,10 @@ public class MemberDto {
     private String password;
     private String phoneNumber;
     private String address;
+
+
+    // @NotBlank(message = "나이는 필수 값 입니다.")
+
     private int age;
     private String image;
     private LocalDateTime updatedAt;
