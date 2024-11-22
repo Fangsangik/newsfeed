@@ -14,12 +14,9 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class FriendDto {
-    private Long id;
     private Long responseFriendId;
     private String image;
-    private String email;
     private String name;
-    private Boolean isApproval;
 
     public FriendDto(Friend friend) {
         if (friend == null || friend.getRequestFriend() == null || friend.getResponseFriend() == null) {
@@ -27,7 +24,6 @@ public class FriendDto {
         }
         this.responseFriendId = friend.getResponseFriend().getId();
         this.image = friend.getRequestFriend().getImage(); // 요청자의 이미지
-        this.email = friend.getRequestFriend().getEmail(); // 요청자의 이메일
         this.name = friend.getRequestFriend().getName();   // 요청자의 이름
     }
 }
