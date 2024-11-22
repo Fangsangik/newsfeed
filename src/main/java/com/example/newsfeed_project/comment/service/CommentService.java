@@ -27,21 +27,19 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final MemberService memberService;
-    private final NewsfeedService newsfeedService;
     private final NewsfeedRepository newsfeedRepository;
     private final CommentLikeRepository commentLikeRepository;
 
-    public CommentService(CommentRepository commentRepository, MemberService memberService, NewsfeedService newsfeedService, NewsfeedRepository newsfeedRepository, CommentLikeRepository commentLikeRepository) {
+    public CommentService(CommentRepository commentRepository, MemberService memberService, NewsfeedRepository newsfeedRepository, CommentLikeRepository commentLikeRepository) {
         this.commentRepository = commentRepository;
         this.memberService = memberService;
-        this.newsfeedService = newsfeedService;
         this.newsfeedRepository = newsfeedRepository;
         this.commentLikeRepository = commentLikeRepository;
     }
 
     //댓글 생성
     public CommentResponseDto createComment(Long newsfeedId, CommentRequestDto dto, Long loggedInUserId) {
-        Newsfeed newsfeed = newsfeedService.findNewsfeedByIdOrElseThrow(newsfeedId);
+        Newsfeed newsfeed = newsfeedRepository.findById(newsfeedId).orElseThrow(() -> new NotFoundException(NOT_FOUND_NEWSFEED));
         Member member = memberService.validateId(loggedInUserId);
         Comment comment = Comment.toEntity(dto);
         comment.setMember(member);
@@ -127,4 +125,9 @@ public class CommentService {
             throw new NoAuthorizedException(NO_AUTHOR_CHANGE);
         }
     }
+
+    public void deleteByNewsfeedId(Newsfeed newsfeed, Long loggedInUserId){
+        commentRepository.deleteByNewsfeedId(newsfeed.getId());
+    }
+
 }

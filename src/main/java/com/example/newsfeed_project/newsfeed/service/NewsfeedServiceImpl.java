@@ -34,7 +34,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class NewsfeedServiceImpl implements NewsfeedService{
-
   private final NewsfeedRepository newsfeedRepository;
   private final MemberService memberService;
   private final NewsfeedLikeRepository newsfeedLikeRepository;
