@@ -1,14 +1,10 @@
 package com.example.newsfeed_project.newsfeed.repository;
 
-import com.example.newsfeed_project.newsfeed.dto.NewsfeedResponseDto;
-import com.example.newsfeed_project.newsfeed.dto.NewsfeedTermRequestDto;
 import com.example.newsfeed_project.newsfeed.entity.Newsfeed;
-import java.time.LocalDate;
+
+
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.List;
-import org.springframework.cglib.core.Local;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

@@ -14,7 +14,7 @@ import java.io.IOException;
 @Slf4j
 public class LoginFilter implements Filter {
 
-    private static final String[] whiteList = {"/api/login", "/api/logout", "/members/register", "/"};
+    private static final String[] whiteList = {"/api/login", "/api/logout", "/members/register", "/members/{id}"};
 
     private final MemberService memberService;
 

@@ -1,18 +1,13 @@
 package com.example.newsfeed_project.friend.controller;
 
 import com.example.newsfeed_project.friend.dto.FriendDto;
-import com.example.newsfeed_project.friend.dto.FriendResponseDto;
 import com.example.newsfeed_project.friend.service.FriendService;
-import com.example.newsfeed_project.member.dto.MemberDto;
 import com.example.newsfeed_project.util.SessionUtil;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-
 
 @RestController
 @RequestMapping("/friends")
@@ -28,9 +23,10 @@ public class FriendController {
     //친구 리스트 조회
     @GetMapping("/friendList")
     public ResponseEntity<?> getFriendList(@RequestParam(defaultValue = "0") int page,
-                                               @RequestParam(defaultValue = "10") int size,
+                                           @RequestParam(defaultValue = "10") int size,
                                            HttpSession session) {
         String loggedInUserEmail = SessionUtil.validateSession(session);
+
         Page<FriendDto> response = friendService.getApprovedFriendList(page, size, loggedInUserEmail);
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -84,4 +80,3 @@ public class FriendController {
         }
     }
 }
-

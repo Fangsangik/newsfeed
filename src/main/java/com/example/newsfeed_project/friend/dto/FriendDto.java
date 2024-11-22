@@ -1,8 +1,10 @@
 package com.example.newsfeed_project.friend.dto;
 
 import com.example.newsfeed_project.friend.entity.Friend;
-import lombok.*;
-
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 @Builder
 @Getter
