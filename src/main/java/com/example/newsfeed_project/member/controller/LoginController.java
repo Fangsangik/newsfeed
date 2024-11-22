@@ -27,11 +27,13 @@ public class LoginController {
         this.memberService = memberService;
     }
 
+    // 로그인 처리
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestDto loginRequestDto,
                                    HttpServletRequest request) {
-        boolean authenticate = memberService.authenticate(loginRequestDto.getEmail(), loginRequestDto.getPassword());
-        if (authenticate) {
+        // 이메일과 비밀번호를 검증
+        Long userId = memberService.authenticateAndGetId(loginRequestDto.getEmail(), loginRequestDto.getPassword());
+        if (userId != null) {
             // 기존 세션 무효화
             HttpSession existingSession = request.getSession(false);
             if (existingSession != null) {
@@ -40,8 +42,8 @@ public class LoginController {
 
             // 새로운 세션 생성
             HttpSession session = request.getSession(true);
-            session.setAttribute("email", loginRequestDto.getEmail());
-            log.info("logged in successfully : {}", loginRequestDto.getEmail());
+            session.setAttribute("id", userId);  // 세션에 사용자 PK 저장
+            log.info("로그인 성공 : User ID {}", userId);
             return ResponseEntity.status(HttpStatus.OK).body("로그인 성공");
         } else {
             log.info("로그인 실패 : {}", loginRequestDto.getEmail());
@@ -49,17 +51,16 @@ public class LoginController {
         }
     }
 
+    // 로그아웃 처리
     @PostMapping("/logout")
-    public ResponseEntity<?> logout (HttpServletRequest request) {
+    public ResponseEntity<?> logout(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         if (session != null) {
             session.invalidate();
-            log.info("logged out successfully");
-            return ResponseEntity.status(HttpStatus.OK).body("로그아웃 성공");
+            log.info("로그아웃 성공");
         } else {
-            log.info("세션 없음 : 로그아웃 실패");
-            throw new NoAuthorizedException(NO_SESSION);
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("현제 로그인 중인게 없습니다.");
+            log.info("세션 없음 : 로그아웃 처리됨");
         }
+        return ResponseEntity.status(HttpStatus.OK).body("로그아웃 성공");
     }
 }
