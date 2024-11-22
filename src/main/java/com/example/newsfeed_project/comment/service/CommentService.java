@@ -37,9 +37,9 @@ public class CommentService {
     }
 
     //댓글 생성
-    public CommentResponseDto createComment(Long newsfeedId, CommentRequestDto dto, String email) {
+    public CommentResponseDto createComment(Long newsfeedId, CommentRequestDto dto, Long loggedInUserId) {
         Newsfeed newsfeed = newsfeedService.findNewsfeedByIdOrElseThrow(newsfeedId);
-        Member member = memberService.getByMemberByEmail(email);
+        Member member = memberService.validateId(loggedInUserId);
         Comment comment = Comment.toEntity(dto);
         comment.setMember(member);
         comment.setNewsFeed(newsfeed);
@@ -63,16 +63,16 @@ public class CommentService {
 
     //댓글 수정
     @Transactional
-    public CommentResponseDto updateComment(Long commentId, CommentRequestDto dto, String email) {
+    public CommentResponseDto updateComment(Long commentId, CommentRequestDto dto, Long loggedInUserId) {
         //댓글 존재 여부 확인
         findCommentByIdOrElseThrow(commentId);
 
-        Member member = memberService.getByMemberByEmail(email);
+        Member member = memberService.validateId(loggedInUserId);
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new IllegalArgumentException("뉴스피드를 찾지 못했습니다."));
         Newsfeed newsfeed = newsfeedRepository.findById(comment.getFeed().getId()).orElseThrow(() -> new IllegalArgumentException("뉴스피드를 찾지 못했습니다."));
 
         //사용자 검증
-        checkCommentAuthorOrNewsfeedAuthor(email, comment, newsfeed);
+        checkCommentAuthorOrNewsfeedAuthor(loggedInUserId, comment, newsfeed);
 
         comment.updateComment(dto);
         Comment save = commentRepository.save(comment);
@@ -82,16 +82,16 @@ public class CommentService {
 
     //댓글 삭제
     @Transactional
-    public void deleteComment(Long commentId, String email) {
+    public void deleteComment(Long commentId, Long loggedInUserId) {
         //댓글 존재 여부 확인
         findCommentByIdOrElseThrow(commentId);
 
-        Member member = memberService.getByMemberByEmail(email);
+        Member member = memberService.validateId(loggedInUserId);
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new IllegalArgumentException("댓글을 찾지 못했습니다."));
         Newsfeed newsfeed = newsfeedRepository.findById(comment.getFeed().getId()).orElseThrow(() -> new IllegalArgumentException("뉴스피드를 찾지 못했습니다."));
 
         //사용자 검증
-        checkCommentAuthorOrNewsfeedAuthor(email, comment, newsfeed);
+        checkCommentAuthorOrNewsfeedAuthor(loggedInUserId ,comment, newsfeed);
 
         if(commentLikeRepository.findByCommentId(commentId) != null) {
             commentLikeRepository.deleteByCommentId(commentId);
@@ -105,19 +105,19 @@ public class CommentService {
     }
 
     //댓글 수정,삭제 시 댓글 작성자 or 게시글 작성자만 가능
-    private void checkCommentAuthorOrNewsfeedAuthor(String email, Comment comment, Newsfeed newsfeed) {
+    private void checkCommentAuthorOrNewsfeedAuthor(Long loggedInUserId, Comment comment, Newsfeed newsfeed) {
         if (newsfeed != null && comment != null) {
-            if(!comment.getMember().getEmail().equals(email)) {
-                if (!newsfeed.getMember().getEmail().equals(email)) {
+            if(!comment.getMember().getId().equals(loggedInUserId)) {
+                if (!newsfeed.getMember().getId().equals(loggedInUserId)) {
                     throw new NoAuthorizedException(NO_AUTHOR_CHANGE);
                 }
             }
         } else if (newsfeed != null && comment == null) {
-            if (!newsfeed.getMember().getEmail().equals(email)) {
+            if (!newsfeed.getMember().getId().equals(loggedInUserId)) {
                 throw new NoAuthorizedException(NO_AUTHOR_CHANGE);
             }
         } else if (newsfeed == null && comment != null) {
-            if (!comment.getMember().getEmail().equals(email)) {
+            if (!comment.getMember().getId().equals(loggedInUserId)) {
                 throw new NoAuthorizedException(NO_AUTHOR_CHANGE);
             }
         }else {

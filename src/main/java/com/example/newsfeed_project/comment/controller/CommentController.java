@@ -4,7 +4,6 @@ import com.example.newsfeed_project.comment.dto.CommentRequestDto;
 import com.example.newsfeed_project.comment.dto.CommentResponseDto;
 import com.example.newsfeed_project.comment.dto.UpdateCommentResponseDto;
 import com.example.newsfeed_project.comment.service.CommentService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,9 +28,9 @@ public class CommentController {
     public ResponseEntity<CommentResponseDto> createComment(
             Long newsfeedId,
             @Valid @RequestBody CommentRequestDto dto,
-            HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
-        CommentResponseDto commentResponseDto = commentService.createComment(newsfeedId, dto, SessionUtil.validateSession(session));
+            HttpSession session) {
+        Long loggedInUserId = (Long) session.getAttribute("id");
+        CommentResponseDto commentResponseDto = commentService.createComment(newsfeedId, dto, loggedInUserId);
         return new ResponseEntity<>(commentResponseDto, HttpStatus.CREATED);
     }
 
@@ -59,9 +58,9 @@ public class CommentController {
     public ResponseEntity<?> updateComment(
             Long id,
             @Valid @RequestBody CommentRequestDto dto,
-            HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
-        CommentResponseDto commentResponseDto = commentService.updateComment(id, dto, SessionUtil.validateSession(session));
+            HttpSession session) {
+        Long loggedInUserId = (Long) session.getAttribute("id");
+        CommentResponseDto commentResponseDto = commentService.updateComment(id, dto, loggedInUserId);
         UpdateCommentResponseDto responseDto = UpdateCommentResponseDto.toResponseDto(commentResponseDto);
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
@@ -70,9 +69,9 @@ public class CommentController {
     @DeleteMapping
     public ResponseEntity<?> deleteComment(
             Long commentId,
-            HttpServletRequest request){
-        HttpSession session = request.getSession(false);
-        commentService.deleteComment(commentId, SessionUtil.validateSession(session));
+            HttpSession session){
+        Long loggedInUserId = (Long) session.getAttribute("id");
+        commentService.deleteComment(commentId, loggedInUserId);
 
         return ResponseEntity.status(HttpStatus.OK).body("댓글 삭제가 되었습니다.");
     }
