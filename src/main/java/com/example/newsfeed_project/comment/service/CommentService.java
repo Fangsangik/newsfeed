@@ -130,11 +130,13 @@ public class CommentService {
     public void deleteByNewsfeedId(Long newsfeedId, Long loggedInUserId){
         List<Comment> comment = commentRepository.findByFeedIdAndMemberId(newsfeedId, loggedInUserId);
         if(comment != null) {
-            comment.stream()
-                    .peek(commentOne ->{
-                        commentLikeRepository.deleteByCommentId(commentOne.getId());
-                        commentRepository.deleteById(commentOne.getId());
-                    });
+            for(Comment c : comment) {
+                CommentLike commentLike = commentLikeRepository.findByCommentId(c.getId());
+                if(commentLike != null) {
+                    commentLikeRepository.delete(commentLike);
+                }
+            }
+            commentRepository.deleteAll(comment);
         }
     }
 

@@ -84,6 +84,7 @@ public class NewsfeedServiceImpl implements NewsfeedService{
   public void delete(Long id, Long loggedInUserId) {
     Newsfeed newsfeed = findNewsfeedByIdOrElseThrow(id);
     checkMemberId(loggedInUserId, newsfeed);
+//    Comment comment = commentService.find
     commentService.deleteByNewsfeedId(id, loggedInUserId);
     deleteNewsfeedLike(id);
     newsfeedRepository.delete(newsfeed);
