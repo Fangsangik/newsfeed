@@ -1,6 +1,9 @@
 package com.example.newsfeed_project.member.entity;
 
+import com.example.newsfeed_project.common.BaseEntity;
 import com.example.newsfeed_project.member.dto.MemberDto;
+import com.example.newsfeed_project.member.dto.MemberUpdateRequestDto;
+import com.example.newsfeed_project.member.dto.MemberUpdateResponseDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,7 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class Member {
+public class Member extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,55 +31,32 @@ public class Member {
 
     private LocalDateTime deletedAt;
 
-    @Version
     //낙관적 락
     //버전 관리를 통해 동시성 충돌 감지.
+    @Version
     private Integer version;
 
-    public static Member toEntity(MemberDto memberDtO) {
-        return Member.builder()
-                .name(memberDtO.getName())
-                .email(memberDtO.getEmail())
-                .password(memberDtO.getPassword())
-                .phoneNumber(memberDtO.getPhoneNumber())
-                .address(memberDtO.getAddress())
-                .age(memberDtO.getAge())
-                .image(memberDtO.getImage())
-                .deletedAt(memberDtO.getDeletedAt())
-                .build();
-    }
 
-    public void updatedMember(MemberDto memberDtO) {
-        if (memberDtO.getName() != null) {
-            this.name = memberDtO.getName();
+    public void updatedMember(MemberUpdateRequestDto updatedDto) {
+        if (updatedDto.getName() != null) {
+            this.name = updatedDto.getName();
         }
 
-        if (memberDtO.getImage() != null) {
-            this.image = memberDtO.getImage();
+        if (updatedDto.getImage() != null) {
+            this.image = updatedDto.getImage();
         }
 
-        if (memberDtO.getPhoneNumber() != null) {
-            this.phoneNumber = memberDtO.getPhoneNumber();
+        if (updatedDto.getPhoneNumber() != null) {
+            this.phoneNumber = updatedDto.getPhoneNumber();
         }
 
-        if (memberDtO.getAddress() != null) {
-            this.address = memberDtO.getAddress();
+        if (updatedDto.getAddress() != null) {
+            this.address = updatedDto.getAddress();
         }
     }
 
-    public Member withPassword(String password) {
-        return Member.builder()
-                .id(this.id)
-                .name(this.name)
-                .email(this.email)
-                .password(password) // 변경된 비밀번호
-                .phoneNumber(this.phoneNumber)
-                .address(this.address)
-                .age(this.age)
-                .image(this.image)
-                .deletedAt(this.deletedAt)
-                .version(this.version)
-                .build();
+    public void updatePassword(String password) {
+        this.password = password;
     }
 
     public void setDeletedAt(LocalDateTime deletedAt) {
@@ -89,10 +69,6 @@ public class Member {
 
     public boolean isDeleted() {
         return this.deletedAt != null;
-    }
-
-    public void restore() {
-        this.deletedAt = null;
     }
 }
 

@@ -4,8 +4,8 @@ import com.example.newsfeed_project.friend.dto.FriendDto;
 import org.springframework.data.domain.Page;
 
 public interface FriendService {
-    void sendFriendRequest(FriendDto friendDto, String loggedInUserEmail);
-    void acceptFriendRequest(Long requestId, Long responseFriendId, boolean isApproved, String loggedInUserEmail);
+    void sendFriendRequest(FriendDto friendDto, Long loggedInUserId);
+    Page<FriendDto> getApprovedFriendList(int page, int size, Long loggedInUserId);
     void deleteFriendByResponseId(Long requestId, Long responseId);
-    Page<FriendDto> getApprovedFriendList(int page, int size, String email);
+    void acceptFriendRequest(Long requestId, boolean isApproved, Long loggedInUserId);
 }

@@ -9,18 +9,15 @@ import java.util.List;
 import java.util.Optional;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
-    @Query("SELECT m FROM Member m WHERE m.email = :email AND m.deletedAt IS NULL")
-    Optional<Member> findByEmail(String email);
-
+    // PK와 삭제되지 않은 조건으로 멤버 조회
     @Query("SELECT m FROM Member m WHERE m.id = :id AND m.deletedAt IS NULL")
-    Optional<Member> findById(@Param("id") Long id);
+    Optional<Member> findByIdAndNotDeleted(@Param("id") Long id);
 
-    // 전체 조회 시 Soft 삭제된 데이터 제외
-    @Query("SELECT m FROM Member m WHERE m.deletedAt IS NULL")
-    List<Member> findAllActiveMembers();
+    // 이메일 중복 여부 확인
+    //@Query("SELECT COUNT(m) > 0 FROM Member m WHERE m.email = :email AND m.deletedAt IS NULL")
+    boolean existsByEmail(@Param("email") String email);
 
-    @Query("SELECT m FROM Member m WHERE m.email = :email")
-    Optional<Member> findByEmailIncludingDeleted(@Param("email") String email);
-
-
+    // 이메일로 멤버 조회
+    //@Query("SELECT m FROM Member m WHERE m.email = :email AND m.deletedAt IS NULL")
+    Optional<Member> findByEmail(@Param("email") String email);
 }

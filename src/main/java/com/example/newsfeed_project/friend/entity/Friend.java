@@ -16,11 +16,11 @@ public class Friend {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private boolean friendApproval;
 
     private String status;
 
     private LocalDateTime updatedAt;
+    private String image;
 
     // 요청자
     @ManyToOne(cascade = CascadeType.PERSIST)
@@ -38,13 +38,11 @@ public class Friend {
 
     // 상태 업데이트
     public void approve() {
-        this.friendApproval = true;
         this.status = "APPROVED";
         this.updatedAt = LocalDateTime.now();
     }
 
     public void reject() {
-        this.friendApproval = false;
         this.status = "REJECTED";
     }
 

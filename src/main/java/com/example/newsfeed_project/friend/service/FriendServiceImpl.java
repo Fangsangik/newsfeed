@@ -1,18 +1,14 @@
 package com.example.newsfeed_project.friend.service;
 
-import com.example.newsfeed_project.config.PasswordEncoder;
 import com.example.newsfeed_project.friend.dto.FriendDto;
 import com.example.newsfeed_project.friend.entity.Friend;
 import com.example.newsfeed_project.friend.repository.FriendRepository;
-import com.example.newsfeed_project.member.dto.MemberDto;
 import com.example.newsfeed_project.member.entity.Member;
 import com.example.newsfeed_project.member.repository.MemberRepository;
-import com.example.newsfeed_project.member.service.MemberService;
-import jakarta.servlet.http.HttpSession;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -27,22 +23,23 @@ public class FriendServiceImpl implements FriendService {
 
     private final FriendRepository friendRepository;
     private final MemberRepository memberRepository;
-    private final PasswordEncoder passwordEncoder;
 
-    public FriendServiceImpl(FriendRepository friendRepository, MemberRepository memberRepository, PasswordEncoder passwordEncoder) {
+    public FriendServiceImpl(FriendRepository friendRepository, MemberRepository memberRepository) {
         this.friendRepository = friendRepository;
         this.memberRepository = memberRepository;
-        this.passwordEncoder = passwordEncoder;
+
     }
 
     @Override
     @Transactional
-    public void sendFriendRequest(FriendDto friendDto, String loggedInUserEmail) {
-        Member requestFriend = memberRepository.findByEmail(loggedInUserEmail)
+    public void sendFriendRequest(FriendDto friendDto, Long loggedInUserId) {
+
+        Member requestFriend = memberRepository.findById(loggedInUserId)
                 .orElseThrow(() -> new IllegalArgumentException("로그인된 사용자를 찾을 수 없습니다."));
         Member responseFriend = memberRepository.findById(friendDto.getResponseFriendId())
                 .orElseThrow(() -> new IllegalArgumentException("응답 사용자를 찾을 수 없습니다."));
 
+        //여기서 걸리면 서비스가 멈추기 때문에 위로
         if (requestFriend.getId().equals(responseFriend.getId())) {
             throw new IllegalArgumentException("자기 자신에게 친구 요청을 보낼 수 없습니다.");
         }
@@ -69,13 +66,13 @@ public class FriendServiceImpl implements FriendService {
 
     @Transactional
     @Override
-    public void acceptFriendRequest(Long requestId, Long responseFriendId, boolean isApproved, String loggedInUserEmail) {
+    public void acceptFriendRequest(Long requestId, boolean isApproved, Long loggedInUserId) {
         // 현재 로그인된 사용자를 조회
-        Member loggedInUser = memberRepository.findByEmail(loggedInUserEmail)
+        Member loggedInUser = memberRepository.findById(loggedInUserId)
                 .orElseThrow(() -> new IllegalArgumentException("로그인된 사용자를 찾을 수 없습니다."));
 
-        // 요청 ID와 응답 친구 ID로 친구 요청을 조회
-        Friend friendRequest = friendRepository.findByRequestFriendIdAndResponseFriendId(requestId, responseFriendId)
+        // 요청 ID로 친구 요청을 조회
+        Friend friendRequest = friendRepository.findById(requestId)
                 .orElseThrow(() -> new IllegalArgumentException("친구 요청을 찾을 수 없습니다."));
 
         // 현재 로그인된 사용자가 요청의 responseFriend인지 확인
@@ -83,41 +80,36 @@ public class FriendServiceImpl implements FriendService {
             throw new IllegalArgumentException("이 친구 요청을 승인하거나 거절할 권한이 없습니다.");
         }
 
-        // 승인 또는 거부 처리
-        if (isApproved) {
-            friendRequest.setStatus("APPROVED");
-            friendRequest.setUpdatedAt(LocalDateTime.now());
-            friendRepository.save(friendRequest);
-            log.info("Friend request approved for requestId={}, responseFriendId={}", requestId, responseFriendId);
-        } else {
-            friendRequest.setStatus("REJECTED");
-            friendRequest.setUpdatedAt(LocalDateTime.now());
-            friendRepository.save(friendRequest);
-            log.info("Friend request rejected for requestId={}, responseFriendId={}", requestId, responseFriendId);
-        }
+        // 상태 업데이트 및 저장
+        String status = isApproved ? "APPROVED" : "REJECTED";
+        friendRequest.setStatus(status);
+        friendRequest.setUpdatedAt(LocalDateTime.now());
+        friendRepository.save(friendRequest);
+
+        // 로그 기록
+        log.info("Friend request {} for requestId={}, by userId={}",
+                isApproved ? "approved" : "rejected", requestId, loggedInUserId);
     }
 
     @Transactional(readOnly = true)
-    public Page<FriendDto> getApprovedFriendList(int page, int size, String email) {
+    public Page<FriendDto> getApprovedFriendList(int page, int size, Long loggedInUserId) {
         // 페이지 크기를 10으로 제한
         size = Math.min(size, 10);
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
 
         // 승인된 친구 목록 조회
-        Page<Friend> friends = friendRepository.findApprovedFriendsByEmail(email, "APPROVED", pageable);
+        Page<Friend> friends = friendRepository.findApprovedFriendsByUserId(loggedInUserId, "APPROVED", pageable);
 
         // FriendDto 리스트 변환
         List<FriendDto> friendDtos = new ArrayList<>();
         for (Friend friend : friends.getContent()) {
-            Member relatedUser = friend.getRequestFriend(); // 기본적으로 요청자 정보 사용
-            if (friend.getResponseFriend() != null) {
-                relatedUser = friend.getResponseFriend(); // 응답자 정보로 교체
-            }
-
             FriendDto friendDto = FriendDto.builder()
                     .id(friend.getId())
-                    .requestFriendId(friend.getRequestFriend().getId())
-                    .responseFriendId(friend.getResponseFriend().getId())
+                    //정보를 알수 있게 friendDto가 pk 값이 아니라 다른 정보를 가져오게끔
+                    .name(friend.getRequestFriend().getName())
+                    .image(friend.getRequestFriend().getImage())
+                    .name(friend.getResponseFriend().getName())
+                    .image(friend.getResponseFriend().getImage())
                     .build();
 
             friendDtos.add(friendDto);

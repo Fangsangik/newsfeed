@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpSession;
 import static com.example.newsfeed_project.exception.ErrorCode.SESSION_TIMEOUT;
 
 public class SessionUtil {
-    public static String validateSession(HttpSession session) {
+        public static String validateSession(HttpSession session) {
         if (session == null || session.getAttribute("email") == null) {
             throw new InternalServerException(SESSION_TIMEOUT);
         }
