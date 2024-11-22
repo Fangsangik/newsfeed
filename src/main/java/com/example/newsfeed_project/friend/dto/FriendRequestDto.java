@@ -6,7 +6,6 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class FriendRequestDto {
-
     private Long requestFriendId;
     private Long responseFriendId;
 

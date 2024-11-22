@@ -119,10 +119,11 @@ public class FriendServiceImpl implements FriendService {
             FriendDto friendDto = FriendDto.builder()
                     .id(friend.getId())
                     //정보를 알수 있게 friendDto가 pk 값이 아니라 다른 정보를 가져오게끔
-                    .name(friend.getRequestFriend().getName())
-                    .image(friend.getRequestFriend().getImage())
-                    .name(friend.getResponseFriend().getName())
-                    .image(friend.getResponseFriend().getImage())
+//                    .name(friend.getRequestFriend().getName())
+//                    .image(friend.getRequestFriend().getImage())
+//                    .name(friend.getResponseFriend().getName())
+//                    .image(friend.getResponseFriend().getImage())
+                    .responseFriendId(friend.getResponseFriend().getId())
                     .build();
 
             friendDtos.add(friendDto);
