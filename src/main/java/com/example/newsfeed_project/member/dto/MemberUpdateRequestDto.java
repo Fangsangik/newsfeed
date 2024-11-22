@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MemberUpdateRequestDto {
+    private Long id;
     private String password;        // 현재 비밀번호
     private String name;            // 수정할 이름
     private String phoneNumber;     // 수정할 전화번호
