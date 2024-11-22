@@ -14,8 +14,6 @@ public interface NewsfeedService {
   //뉴스피드 생성
   NewsfeedResponseDto save(NewsfeedRequestDto dto, Long loggedInUserId);
 
-  List<NewsfeedResponseDto> findAll(boolean isLike, Pageable pageable);
-
   NewsfeedResponseDto updateNewsfeed(Long id, NewsfeedRequestDto dto, Long loggedInUserId);
 
   void delete(Long id, Long loggedInUserId);
