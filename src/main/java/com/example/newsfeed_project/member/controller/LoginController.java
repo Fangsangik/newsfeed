@@ -31,16 +31,18 @@ public class LoginController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestDto loginRequestDto,
                                    HttpServletRequest request) {
+        // 이미 활성 세션이 있는지 확인
+        HttpSession existingSession = request.getSession(false);
+        if (existingSession != null && existingSession.getAttribute("id") != null) {
+            log.info("이미 로그인된 세션이 존재합니다: User ID {}", existingSession.getAttribute("id"));
+            throw new NoAuthorizedException(NO_SESSION);
+        }
+
         // 이메일과 비밀번호를 검증
         Long userId = memberService.authenticateAndGetId(loginRequestDto.getEmail(), loginRequestDto.getPassword());
         log.debug("authenticateAndGetId 결과: {}", userId);
-        if (userId != null) {
-            // 기존 세션 무효화
-            HttpSession existingSession = request.getSession(false);
-            if (existingSession != null) {
-                existingSession.invalidate();
-            }
 
+        if (userId != null) {
             // 새로운 세션 생성
             HttpSession session = request.getSession(true);
             session.setAttribute("id", userId);  // 세션에 사용자 PK 저장
