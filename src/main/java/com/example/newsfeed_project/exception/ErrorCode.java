@@ -60,15 +60,7 @@ public enum ErrorCode {
 
   NO_SELF_LIKE("자신이 작성한 게시글과 댓글에 좋아요를 달 수 없습니다.", HttpStatus.UNAUTHORIZED),
 
-
-
-  //로그인
-  //로그인 실패
-  LOGIN_FAIL("로그인에 실패했습니다.", HttpStatus.BAD_REQUEST),
-  //비밀번호의 형식이 틀렸을 때 출력하는 오류 메시지
-//  PASSWORD_VALIDATION("비밀번호의 형식이 틀렸습니다.", HttpStatus.BAD_REQUEST),
-  //충돌오류? MemberServiceImpl #60
-  CONFILX("충돌이 발생했습니다.", HttpStatus.BAD_REQUEST);
+  NO_AUTHOR_APPROVE("이 친구 요청을 승인하거나 거절할 권한이 없습니다.", HttpStatus.UNAUTHORIZED);
 
   private final String message;
   private final HttpStatus httpStatus;

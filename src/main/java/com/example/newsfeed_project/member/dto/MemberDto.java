@@ -2,6 +2,7 @@ package com.example.newsfeed_project.member.dto;
 
 import com.example.newsfeed_project.member.entity.Member;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -35,7 +36,7 @@ public class MemberDto {
     @NotBlank(message = "주소는 필수 값 입니다.")
     private String address;
 
-    @NotBlank(message = "나이는 필수 값 입니다.")
+    @NotNull(message = "나이는 필수 값 입니다.")
     private int age;
 
     private String image;

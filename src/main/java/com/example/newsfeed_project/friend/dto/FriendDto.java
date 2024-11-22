@@ -1,5 +1,8 @@
 package com.example.newsfeed_project.friend.dto;
 
+import static com.example.newsfeed_project.exception.ErrorCode.NOT_FOUND_MEMBER;
+
+import com.example.newsfeed_project.exception.NotFoundException;
 import com.example.newsfeed_project.friend.entity.Friend;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,7 +23,7 @@ public class FriendDto {
 
     public FriendDto(Friend friend) {
         if (friend == null || friend.getRequestFriend() == null || friend.getResponseFriend() == null) {
-            throw new IllegalArgumentException("Friend 또는 Member 정보가 올바르지 않습니다.");
+            throw new NotFoundException(NOT_FOUND_MEMBER);
         }
         this.responseFriendId = friend.getResponseFriend().getId();
         this.image = friend.getRequestFriend().getImage(); // 요청자의 이미지

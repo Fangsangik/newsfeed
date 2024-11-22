@@ -4,6 +4,7 @@ import static com.example.newsfeed_project.exception.ErrorCode.ALREADY_FRIEND;
 import static com.example.newsfeed_project.exception.ErrorCode.ALREADY_SEND;
 import static com.example.newsfeed_project.exception.ErrorCode.NOT_FOUND_FRIEND_REQUEST;
 import static com.example.newsfeed_project.exception.ErrorCode.NOT_FOUND_MEMBER;
+import static com.example.newsfeed_project.exception.ErrorCode.NO_AUTHOR_APPROVE;
 import static com.example.newsfeed_project.exception.ErrorCode.NO_SESSION;
 import static com.example.newsfeed_project.exception.ErrorCode.SELF_FRIEND;
 import static com.example.newsfeed_project.exception.ErrorCode.WRONG_REQUEST;
@@ -89,7 +90,7 @@ public class FriendServiceImpl implements FriendService {
 
         // 현재 로그인된 사용자가 요청의 responseFriend인지 확인
         if (!friendRequest.getResponseFriend().getId().equals(loggedInUser.getId())) {
-            throw new IllegalArgumentException("이 친구 요청을 승인하거나 거절할 권한이 없습니다.");
+            throw new NoAuthorizedException(NO_AUTHOR_APPROVE);
         }
 
         // 상태 업데이트 및 저장

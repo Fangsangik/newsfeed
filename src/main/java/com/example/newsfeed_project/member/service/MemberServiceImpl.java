@@ -1,12 +1,16 @@
 package com.example.newsfeed_project.member.service;
 
+import static com.example.newsfeed_project.exception.ErrorCode.EMAIL_EXIST;
 import static com.example.newsfeed_project.exception.ErrorCode.NOT_FOUND_EMAIL;
 import static com.example.newsfeed_project.exception.ErrorCode.NOT_FOUND_MEMBER;
 import static com.example.newsfeed_project.exception.ErrorCode.SAME_PASSWORD;
+import static com.example.newsfeed_project.exception.ErrorCode.SESSION_TIMEOUT;
 import static com.example.newsfeed_project.exception.ErrorCode.WRONG_PASSWORD;
 
 import com.example.newsfeed_project.config.PasswordEncoder;
+import com.example.newsfeed_project.exception.DuplicatedException;
 import com.example.newsfeed_project.exception.ErrorCode;
+import com.example.newsfeed_project.exception.InternalServerException;
 import com.example.newsfeed_project.exception.InvalidInputException;
 import com.example.newsfeed_project.exception.NotFoundException;
 import com.example.newsfeed_project.member.dto.MemberDto;
@@ -39,7 +43,7 @@ public class MemberServiceImpl implements MemberService {
     public MemberDto createMember(MemberDto memberDto) {
         // 이메일 중복 검사
         if (memberRepository.existsByEmail(memberDto.getEmail())) {
-            throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
+            throw new DuplicatedException(EMAIL_EXIST);
         }
 
         // 비밀번호 암호화 및 회원 생성
@@ -96,7 +100,7 @@ public class MemberServiceImpl implements MemberService {
         // 세션에서 PK 기반으로 조회
         Long memberId = (Long) session.getAttribute("id");
         if (memberId == null) {
-            throw new IllegalStateException("로그인 세션이 만료되었습니다.");
+            throw new InternalServerException(SESSION_TIMEOUT);
         }
 
         Member member = validateId(memberId);
