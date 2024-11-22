@@ -35,7 +35,7 @@ public class MemberDto {
     @NotBlank(message = "주소는 필수 값 입니다.")
     private String address;
 
-    @NotBlank(message = "나이는 필수 값 입니다.")
+//    @NotBlank(message = "나이는 필수 값 입니다.")
     private int age;
 
     private String image;

@@ -53,40 +53,15 @@ public class NewsfeedController {
   @GetMapping
   public ResponseEntity<List<NewsfeedResponseDto>> findAll(
       @RequestParam(required = false, defaultValue = "false") boolean isLike,
-//      @RequestParam(required = false, defaultValue = "-1") Long memberId,
-//      @RequestParam(required = false, value = "LocalDate.now()") LocalDate startDate,
-//      @RequestParam(required = false, value = "LocalDate.now()") LocalDate endDate,
+      @RequestParam(required = false) Long memberId,
+      @RequestParam(required = false, defaultValue = "null") String startDateStr,
+      @RequestParam(required = false, defaultValue = "null") String endDateStr,
       @PageableDefault(size = 10, sort = "updatedAt", direction = Direction.DESC)
       Pageable pageable
   ){
-//    List<NewsfeedResponseDto> list = newsfeedService.findAllNewsfeed(isLike, memberId, startDate, endDate, pageable);
-    List<NewsfeedResponseDto> list = newsfeedService.findAll(isLike, pageable);
-    return new ResponseEntity<>(list, HttpStatus.OK);
-  }
-
-
-  //request param
-  //사용자를 기준으로 조회를 하는 메서드 / 좋아요순 정렬기능이 있음
-  @GetMapping("/members/{memberId}")
-  public ResponseEntity<List<NewsfeedResponseDto>> findByMemberId(
-      @PathVariable long memberId,
-      @RequestParam(required = false, defaultValue = "false") boolean isLike,
-      @PageableDefault(size = 10, sort = "createdAt", direction = Direction.DESC)
-      Pageable pageable
-  ){
-    List<NewsfeedResponseDto> list = newsfeedService.findByMemberId(memberId, isLike, pageable);
-    return new ResponseEntity<>(list, HttpStatus.OK);
-  }
-
-  //기간검색 / 좋아요순 정렬기능이 있음
-  @GetMapping("/term")
-  public ResponseEntity<List<NewsfeedResponseDto>> findAllByTerm(
-      @Valid @RequestBody NewsfeedTermRequestDto newsfeedTermRequestDto,
-      @RequestParam(required = false, defaultValue = "false") boolean isLike,
-      @PageableDefault(size = 10, sort = "updatedAt", direction = Direction.DESC)
-      Pageable pageable
-  ){
-    List<NewsfeedResponseDto> list = newsfeedService.findAllByTerm(newsfeedTermRequestDto, isLike, pageable);
+    LocalDate startDate = (!"null".equals(startDateStr)/*startDateStr.isEmpty()*/) ? LocalDate.parse(startDateStr) : LocalDate.EPOCH;
+    LocalDate endDate = (!"null".equals(endDateStr) /*endDateStr.isEmpty()*/) ? LocalDate.parse(endDateStr) : LocalDate.now();
+    List<NewsfeedResponseDto> list = newsfeedService.findNewsfeed(isLike, memberId, startDate, endDate, pageable);
     return new ResponseEntity<>(list, HttpStatus.OK);
   }
 

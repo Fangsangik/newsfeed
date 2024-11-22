@@ -7,13 +7,12 @@ import lombok.Getter;
 @Getter
 public class NewsfeedTermRequestDto {
 
-  @NotNull(message = "시작일자는 필수값입니다.")
   private LocalDate startDateTime;
 
   private LocalDate endDateTime;
 
   public NewsfeedTermRequestDto(LocalDate startDateTime, LocalDate endDateTime) {
-    this.startDateTime = startDateTime;
+    this.startDateTime = (startDateTime != null) ? startDateTime : LocalDate.MIN;
     this.endDateTime = (endDateTime != null) ? endDateTime : LocalDate.now();
   }
 }

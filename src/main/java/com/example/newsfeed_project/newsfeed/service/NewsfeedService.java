@@ -22,9 +22,5 @@ public interface NewsfeedService {
 
   Newsfeed findNewsfeedByIdOrElseThrow(Long id);
 
-  List<NewsfeedResponseDto> findByMemberId(long memberId, boolean isLike, Pageable pageable);
-
-  List<NewsfeedResponseDto> findAllByTerm(@Valid NewsfeedTermRequestDto newsfeedTermRequestDto, boolean like, Pageable pageable);
-
-  List<NewsfeedResponseDto> findAllNewsfeed(boolean isLike, Long memberId, LocalDate startDate, LocalDate endDate, Pageable pageable);
+  List<NewsfeedResponseDto> findNewsfeed(boolean isLike, Long memberId, LocalDate startDate, LocalDate endDate, Pageable pageable);
 }

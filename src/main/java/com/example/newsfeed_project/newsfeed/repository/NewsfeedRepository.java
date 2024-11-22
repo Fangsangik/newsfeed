@@ -21,4 +21,7 @@ public interface NewsfeedRepository extends JpaRepository<Newsfeed, Long> {
   List<Newsfeed> findByMemberId(long memberId, Pageable pageable);
 
   List<Newsfeed> findByCreatedAtBetween(LocalDateTime localDateTime, LocalDateTime localDateTime1, Pageable pageable);
+//  List<Newsfeed> findBetweenCreatedAt(LocalDateTime localDateTime, LocalDateTime localDateTime1, Pageable pageable);
+
+  List<Newsfeed> findByMemberIdBetween(Long memberId, LocalDateTime localDateTime, LocalDateTime localDateTime1, Pageable pageable);
 }

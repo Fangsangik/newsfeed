@@ -13,6 +13,7 @@ import com.example.newsfeed_project.newsfeed.dto.LikeResponseDto;
 import com.example.newsfeed_project.newsfeed.entity.Newsfeed;
 import com.example.newsfeed_project.newsfeed.entity.NewsfeedLike;
 import com.example.newsfeed_project.newsfeed.repository.NewsfeedLikeRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +25,7 @@ public class NewsfeedLikeServiceImpl implements NewsfeedLikeService {
   private final MemberService memberService;
   private final NewsfeedLikeRepository newsfeedLikeRepository;
 
+  @Transactional
   @Override
   public LikeResponseDto addLike(String email, long newsfeedId) {
     NewsfeedLike newsfeedLike = checkLike(email, newsfeedId);
