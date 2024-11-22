@@ -12,22 +12,27 @@ public class GlobalExceptionController {
 
   //커스텀
   @ExceptionHandler
-  public ResponseEntity<String> customMessageOfException(DuplicatedException e){
+  public ResponseEntity<String> duplicatedException(DuplicatedException e){
     return new ResponseEntity<>(e.getErrorCode().getMessage(), e.getErrorCode().getHttpStatus());
   }
 
   @ExceptionHandler
-  public ResponseEntity<String> customMessageOfException(InternalServerException e){
+  public ResponseEntity<String> internalServerException(InternalServerException e){
     return new ResponseEntity<>(e.getErrorCode().getMessage(), e.getErrorCode().getHttpStatus());
   }
 
   @ExceptionHandler
-  public ResponseEntity<String> customMessageOfException(InvalidInputException e){
+  public ResponseEntity<String> invalidInputException(InvalidInputException e){
     return new ResponseEntity<>(e.getErrorCode().getMessage(), e.getErrorCode().getHttpStatus());
   }
 
   @ExceptionHandler
-  public ResponseEntity<String> customMessageOfException(NotFoundException e){
+  public ResponseEntity<String> notFoundException(NotFoundException e){
+    return new ResponseEntity<>(e.getErrorCode().getMessage(), e.getErrorCode().getHttpStatus());
+  }
+
+  @ExceptionHandler
+  public ResponseEntity<String> noAuthorizedException(NoAuthorizedException e){
     return new ResponseEntity<>(e.getErrorCode().getMessage(), e.getErrorCode().getHttpStatus());
   }
 

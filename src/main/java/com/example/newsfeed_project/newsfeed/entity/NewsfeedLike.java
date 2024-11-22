@@ -8,16 +8,20 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
 @Table(name = "newsfeed_like")
+@NoArgsConstructor
+@AllArgsConstructor
 public class NewsfeedLike {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private long id;
+  private Long id;
 
   @ManyToOne
   @JoinColumn(name = "member_id")
@@ -27,11 +31,8 @@ public class NewsfeedLike {
   @JoinColumn(name = "newsfeed_id")
   private Newsfeed newsfeed;
 
-  public void setMember(Member member) {
+  public NewsfeedLike(Member member, Newsfeed newsfeed) {
     this.member = member;
-  }
-  public void setNewsfeed(Newsfeed newsfeed) {
     this.newsfeed = newsfeed;
   }
-
 }

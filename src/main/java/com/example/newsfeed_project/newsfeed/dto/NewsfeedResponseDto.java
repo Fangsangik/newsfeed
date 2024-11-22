@@ -19,17 +19,23 @@ public class NewsfeedResponseDto {
 
   private String author;
 
-  private long like;
+  private long likeCount;
 
   private LocalDateTime updatedAt;
 
-  public static NewsfeedResponseDto toDto(Newsfeed newsfeed, long like) {
+  public static NewsfeedResponseDto toDto(Newsfeed newsfeed) {
+    String email = "";
+    if(newsfeed.getMember().getDeletedAt() == null) {
+      email = newsfeed.getMember().getEmail();
+    }else{
+      email = "삭제된 사용자";
+    }
     return new NewsfeedResponseDto(
         newsfeed.getFeedImage(),
         newsfeed.getTitle(),
         newsfeed.getContent(),
-        newsfeed.getMember().getEmail(),
-        like,
+        email,
+        newsfeed.getLikeCount(),
         newsfeed.getUpdatedAt()
     );
   }

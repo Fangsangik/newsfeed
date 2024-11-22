@@ -1,8 +1,10 @@
 package com.example.newsfeed_project.comment.controller;
 
-import com.example.newsfeed_project.comment.dto.CommentDto;
+import com.example.newsfeed_project.comment.dto.CommentRequestDto;
+import com.example.newsfeed_project.comment.dto.CommentResponseDto;
 import com.example.newsfeed_project.comment.dto.UpdateCommentResponseDto;
 import com.example.newsfeed_project.comment.service.CommentService;
+import com.example.newsfeed_project.util.SessionUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -17,58 +19,63 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/comment")
+@RequestMapping("/comments")
 @RequiredArgsConstructor
 public class CommentController {
 
     private final CommentService commentService;
 
     //댓글 생성
-    @PostMapping("/{newsfeedId}")
-    public ResponseEntity<CommentDto> createComment(
-            @PathVariable Long newsfeedId,
-            @Valid @RequestBody CommentDto dto,
+    @PostMapping
+    public ResponseEntity<CommentResponseDto> createComment(
+            Long newsfeedId,
+            @Valid @RequestBody CommentRequestDto dto,
             HttpServletRequest request) {
         HttpSession session = request.getSession(false);
-        CommentDto commentDto = commentService.createComment(newsfeedId, dto, session);
-        return new ResponseEntity<>(commentDto, HttpStatus.CREATED);
+        CommentResponseDto commentResponseDto = commentService.createComment(newsfeedId, dto, SessionUtil.validateSession(session));
+        return new ResponseEntity<>(commentResponseDto, HttpStatus.CREATED);
     }
 
     //댓글 전체 조회
-    @GetMapping("/newsfeed/{newsfeedId}")
-    public ResponseEntity<List<CommentDto>> findAll(
-            @PathVariable Long newsfeedId,
+    @GetMapping
+    public ResponseEntity<List<CommentResponseDto>> findAll(
+            Long newsfeedId,
             @PageableDefault(size = 10,sort = "updatedAt", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
-        List<CommentDto> commentDtoList = commentService.findAll(newsfeedId, pageable);
-
-        return new ResponseEntity<>(commentDtoList, HttpStatus.OK);
+        List<CommentResponseDto> commentResponseDtoList = commentService.findAll(newsfeedId, pageable);
+        return new ResponseEntity<>(commentResponseDtoList, HttpStatus.OK);
     }
 
     //댓글 단건 조회
     @GetMapping("/{id}")
-    public ResponseEntity<CommentDto> findById(
+    public ResponseEntity<CommentResponseDto> findById(
             @PathVariable Long id) {
-        CommentDto commentDto = commentService.findById(id);
-        return new ResponseEntity<>(commentDto, HttpStatus.OK);
+        CommentResponseDto commentResponseDto = commentService.findById(id);
+        return new ResponseEntity<>(commentResponseDto, HttpStatus.OK);
     }
 
     //댓글 수정
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateComment(@PathVariable Long id, @Valid @RequestBody CommentDto dto) {
-        CommentDto commentDto = commentService.updateComment(id, dto);
-        UpdateCommentResponseDto responseDto = UpdateCommentResponseDto.toResponseDto(commentDto);
+    @PutMapping
+    public ResponseEntity<?> updateComment(
+            Long id,
+            @Valid @RequestBody CommentRequestDto dto,
+            HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        CommentResponseDto commentResponseDto = commentService.updateComment(id, dto, SessionUtil.validateSession(session));
+        UpdateCommentResponseDto responseDto = UpdateCommentResponseDto.toResponseDto(commentResponseDto);
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 
     //댓글 삭제
-    @DeleteMapping("/{id}")
+    @DeleteMapping
     public ResponseEntity<?> deleteComment(
-            @PathVariable Long id){
-
-        commentService.deleteComment(id);
+            Long commentId,
+            HttpServletRequest request){
+        HttpSession session = request.getSession(false);
+        commentService.deleteComment(commentId, SessionUtil.validateSession(session));
 
         return ResponseEntity.status(HttpStatus.OK).body("댓글 삭제가 되었습니다.");
     }
 }
+

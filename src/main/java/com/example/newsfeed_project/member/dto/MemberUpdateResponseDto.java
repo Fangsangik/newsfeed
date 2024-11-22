@@ -1,6 +1,5 @@
 package com.example.newsfeed_project.member.dto;
 
-import com.example.newsfeed_project.member.entity.Member;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,13 +19,13 @@ public class MemberUpdateResponseDto {
     private LocalDateTime updatedAt;
 
 
-    public static MemberUpdateResponseDto toResponseDto(Member member) {
+    public static MemberUpdateResponseDto toResponseDto(MemberDto memberDto) {
         return MemberUpdateResponseDto.builder()
-                .name(member.getName())
-                .phoneNumber(member.getPhoneNumber())
-                .address(member.getAddress())
-                .image(member.getImage())
-                .updatedAt(member.getUpdatedAt() != null ? member.getUpdatedAt() : LocalDateTime.now())
+                .name(memberDto.getName())
+                .phoneNumber(memberDto.getPhoneNumber())
+                .address(memberDto.getAddress())
+                .image(memberDto.getImage())
+                .updatedAt(memberDto.getUpdatedAt())
                 .build();
     }
 }

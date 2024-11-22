@@ -27,7 +27,7 @@ public class Newsfeed extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private long id;
+  private Long id;
 
   @ManyToOne
   @JoinColumn(name = "member_id")
@@ -39,14 +39,18 @@ public class Newsfeed extends BaseEntity {
 
   private String content;
 
-  public void setMember(Member member) {
-    this.member = member;
+  private long likeCount;
+
+  public void setLikeCount(long likeCount) {
+    this.likeCount = likeCount;
   }
 
-  public Newsfeed(String feedImage, String title, String content) {
+  public Newsfeed(Member member, String feedImage, String title, String content) {
+    this.member = member;
     this.feedImage = feedImage;
     this.title = title;
     this.content = content;
+    this.likeCount = 0;
   }
 
   public void updateNewsfeed(NewsfeedRequestDto newsfeed) {

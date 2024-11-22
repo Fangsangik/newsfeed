@@ -15,6 +15,14 @@ public enum ErrorCode {
   DIFFERENT_EMAIL_PASSWORD("이메일 혹은 비밀번호가 잘못되었습니다.", HttpStatus.BAD_REQUEST),
   //탈퇴한 이메일로 가입을 시도할 때 출력하는 오류 메시지
   EMAIL_DELETED("삭제된 이메일 입니다.", HttpStatus.BAD_REQUEST),
+  //이미 친구인 사용자에게 다시 친구신청을 할 때 출력하는 메시지
+  ALREADY_FRIEND("이미 친구 상태입니다.", HttpStatus.BAD_REQUEST),
+  //이미 친구신청을 보낸 사용자에게 다시 친구신청을 할 때 출력하는 메시지
+  ALREADY_SEND("이미 친구 신청을 보냈습니다.", HttpStatus.BAD_REQUEST),
+  //거절한 사용자에게 친구신청을 보냈을 때 다시 친구신청을 할 때 출력하는 메시지
+  REJECT_SEND("친구신청을 거절한 사용자입니다.", HttpStatus.BAD_REQUEST),
+  //자기자신에게 친구요청을 보낸 경우에 출력하는 메시지
+  SELF_FRIEND("자기자신에게 친구요청을 보낼 수 없습니다.", HttpStatus.BAD_REQUEST),
 
   // NotFoundException
 
@@ -27,6 +35,8 @@ public enum ErrorCode {
   NOT_FOUND_EMAIL("이메일을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 
   NOT_FOUND_COMMENT("댓글을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+
+  NOT_FOUND_FRIEND_REQUEST("친구신청을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 
   // InternalServerException
   //세션이 만료되었을 때 출력하는 오류 메시지

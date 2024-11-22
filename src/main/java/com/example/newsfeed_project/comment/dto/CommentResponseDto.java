@@ -12,15 +12,15 @@ import java.time.LocalDateTime;
 @Builder
 @Getter
 @AllArgsConstructor
-public class CommentDto {
+public class CommentResponseDto {
 
     @Valid
     @NotBlank(message = "댓글은 필수사항입니다.")
     private  String contents;
-    private LocalDateTime updatedAt;
+    private  LocalDateTime updatedAt;
 
-    public static CommentDto toDto(Comment comment) {
-        return CommentDto.builder()
+    public static CommentResponseDto toDto(Comment comment) {
+        return CommentResponseDto.builder()
                 .contents(comment.getContents())
                 .updatedAt(comment.getUpdatedAt())
                 .build();

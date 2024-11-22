@@ -19,10 +19,10 @@ public class UpdateCommentResponseDto {
     private String contents;
     private LocalDateTime updatedAt;
 
-    public static UpdateCommentResponseDto toResponseDto(CommentDto commentDto) {
+    public static UpdateCommentResponseDto toResponseDto(CommentResponseDto commentResponseDto) {
         return UpdateCommentResponseDto.builder()
-                .contents(commentDto.getContents())
-                .updatedAt(commentDto.getUpdatedAt())
+                .contents(commentResponseDto.getContents())
+                .updatedAt(commentResponseDto.getUpdatedAt())
                 .build();
     }
 }
