@@ -31,23 +31,11 @@ public class Member extends BaseEntity {
 
     private LocalDateTime deletedAt;
 
-    @Version
     //낙관적 락
     //버전 관리를 통해 동시성 충돌 감지.
+    @Version
     private Integer version;
 
-    public static Member toEntity(MemberDto memberDtO) {
-        return Member.builder()
-                .name(memberDtO.getName())
-                .email(memberDtO.getEmail())
-                .password(memberDtO.getPassword())
-                .phoneNumber(memberDtO.getPhoneNumber())
-                .address(memberDtO.getAddress())
-                .age(memberDtO.getAge())
-                .image(memberDtO.getImage())
-                .deletedAt(memberDtO.getDeletedAt())
-                .build();
-    }
 
     public void updatedMember(MemberUpdateRequestDto updatedDto) {
         if (updatedDto.getName() != null) {
@@ -67,19 +55,8 @@ public class Member extends BaseEntity {
         }
     }
 
-    public Member withPassword(String password) {
-        return Member.builder()
-                .id(this.id)
-                .name(this.name)
-                .email(this.email)
-                .password(password) // 변경된 비밀번호
-                .phoneNumber(this.phoneNumber)
-                .address(this.address)
-                .age(this.age)
-                .image(this.image)
-                .deletedAt(this.deletedAt)
-                .version(this.version)
-                .build();
+    public void updatePassword(String password) {
+        this.password = password;
     }
 
     public void setDeletedAt(LocalDateTime deletedAt) {
@@ -92,10 +69,6 @@ public class Member extends BaseEntity {
 
     public boolean isDeleted() {
         return this.deletedAt != null;
-    }
-
-    public void restore() {
-        this.deletedAt = null;
     }
 }
 
