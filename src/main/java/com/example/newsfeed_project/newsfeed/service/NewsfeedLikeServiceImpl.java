@@ -27,8 +27,8 @@ public class NewsfeedLikeServiceImpl implements NewsfeedLikeService {
 
   @Transactional
   @Override
-  public LikeResponseDto addLike(String email, long newsfeedId) {
-    NewsfeedLike newsfeedLike = checkLike(email, newsfeedId);
+  public LikeResponseDto addLike(Long loggedInUserId, long newsfeedId) {
+    NewsfeedLike newsfeedLike = checkLike(loggedInUserId, newsfeedId);
     if(newsfeedLike.getId() != null) {
       newsfeedLikeRepository.delete(newsfeedLike);
       newsfeedLike.getNewsfeed().setLikeCount(newsfeedLike.getNewsfeed().getLikeCount() - 1);
@@ -40,10 +40,10 @@ public class NewsfeedLikeServiceImpl implements NewsfeedLikeService {
     }
   }
 
-  private NewsfeedLike checkLike(String email, long newsfeedId) {
-    Member member = memberService.getByMemberByEmail(email);
+  private NewsfeedLike checkLike(Long loggedInUserId, long newsfeedId) {
+    Member member = memberService.validateId(loggedInUserId);
     Newsfeed newsfeed = newsfeedService.findNewsfeedByIdOrElseThrow(newsfeedId);
-    checkAuthor(newsfeed, email);
+    checkAuthor(newsfeed, loggedInUserId);
     NewsfeedLike newsfeedLike = newsfeedLikeRepository.findByNewsfeedIdAndMemberId(newsfeedId, member.getId());
     if(newsfeedLike == null){
       newsfeedLike = new NewsfeedLike(member, newsfeed);
@@ -51,8 +51,8 @@ public class NewsfeedLikeServiceImpl implements NewsfeedLikeService {
     return newsfeedLike;
   }
 
-  private void checkAuthor(Newsfeed newsfeed, String email){
-    if(newsfeed.getMember().getEmail().equals(email)){
+  private void checkAuthor(Newsfeed newsfeed, Long loggedInUserId){
+    if(newsfeed.getMember().getId().equals(loggedInUserId)){
       throw new NoAuthorizedException(NO_SELF_LIKE);
     }
   }

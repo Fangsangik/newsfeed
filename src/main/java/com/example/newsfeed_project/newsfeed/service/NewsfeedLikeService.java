@@ -6,5 +6,5 @@ import org.springframework.stereotype.Service;
 @Service
 public interface NewsfeedLikeService {
 
-  LikeResponseDto addLike(String email, long newsfeedId);
+  LikeResponseDto addLike(Long loggedInUserId, long newsfeedId);
 }

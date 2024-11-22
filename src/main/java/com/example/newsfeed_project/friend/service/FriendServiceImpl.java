@@ -1,5 +1,17 @@
 package com.example.newsfeed_project.friend.service;
 
+import static com.example.newsfeed_project.exception.ErrorCode.ALREADY_FRIEND;
+import static com.example.newsfeed_project.exception.ErrorCode.ALREADY_SEND;
+import static com.example.newsfeed_project.exception.ErrorCode.NOT_FOUND_FRIEND_REQUEST;
+import static com.example.newsfeed_project.exception.ErrorCode.NOT_FOUND_MEMBER;
+import static com.example.newsfeed_project.exception.ErrorCode.NO_SESSION;
+import static com.example.newsfeed_project.exception.ErrorCode.SELF_FRIEND;
+import static com.example.newsfeed_project.exception.ErrorCode.WRONG_REQUEST;
+
+import com.example.newsfeed_project.exception.InternalServerException;
+import com.example.newsfeed_project.exception.InvalidInputException;
+import com.example.newsfeed_project.exception.NoAuthorizedException;
+import com.example.newsfeed_project.exception.NotFoundException;
 import com.example.newsfeed_project.friend.dto.FriendDto;
 import com.example.newsfeed_project.friend.entity.Friend;
 import com.example.newsfeed_project.friend.repository.FriendRepository;
@@ -35,13 +47,13 @@ public class FriendServiceImpl implements FriendService {
     public void sendFriendRequest(FriendDto friendDto, Long loggedInUserId) {
 
         Member requestFriend = memberRepository.findById(loggedInUserId)
-                .orElseThrow(() -> new IllegalArgumentException("로그인된 사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoAuthorizedException(NO_SESSION));
         Member responseFriend = memberRepository.findById(friendDto.getResponseFriendId())
-                .orElseThrow(() -> new IllegalArgumentException("응답 사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new NotFoundException(NOT_FOUND_MEMBER));
 
         //여기서 걸리면 서비스가 멈추기 때문에 위로
         if (requestFriend.getId().equals(responseFriend.getId())) {
-            throw new IllegalArgumentException("자기 자신에게 친구 요청을 보낼 수 없습니다.");
+            throw new InvalidInputException(SELF_FRIEND);
         }
 
         Optional<Friend> existingRequest = friendRepository.findByRequestFriendAndResponseFriend(requestFriend, responseFriend);
@@ -69,11 +81,11 @@ public class FriendServiceImpl implements FriendService {
     public void acceptFriendRequest(Long requestId, boolean isApproved, Long loggedInUserId) {
         // 현재 로그인된 사용자를 조회
         Member loggedInUser = memberRepository.findById(loggedInUserId)
-                .orElseThrow(() -> new IllegalArgumentException("로그인된 사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoAuthorizedException(NO_SESSION));
 
         // 요청 ID로 친구 요청을 조회
         Friend friendRequest = friendRepository.findById(requestId)
-                .orElseThrow(() -> new IllegalArgumentException("친구 요청을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NotFoundException(NOT_FOUND_FRIEND_REQUEST));
 
         // 현재 로그인된 사용자가 요청의 responseFriend인지 확인
         if (!friendRequest.getResponseFriend().getId().equals(loggedInUser.getId())) {
@@ -126,7 +138,7 @@ public class FriendServiceImpl implements FriendService {
     public void deleteFriendByResponseId(Long requestId, Long responseId) {
         // 친구 관계 조회 (요청 ID와 응답 ID로)
         Friend friend = friendRepository.findByRequestFriendIdAndResponseFriendId(requestId, responseId)
-                .orElseThrow(() -> new IllegalArgumentException("친구 요청을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NotFoundException(NOT_FOUND_FRIEND_REQUEST));
 
         // 친구 관계 삭제
         friendRepository.delete(friend);
@@ -144,11 +156,11 @@ public class FriendServiceImpl implements FriendService {
                 break;
 
             case "APPROVED":
-                throw new IllegalArgumentException("이미 친구 상태입니다.");
+                throw new InvalidInputException(ALREADY_FRIEND);
             case "PENDING":
-                throw new IllegalArgumentException("이미 친구 요청을 보냈습니다.");
+                throw new InvalidInputException(ALREADY_SEND);
             default:
-                throw new IllegalStateException("지원하지 않는 요청 상태입니다.");
+                throw new InternalServerException(WRONG_REQUEST);
         }
     }
 }

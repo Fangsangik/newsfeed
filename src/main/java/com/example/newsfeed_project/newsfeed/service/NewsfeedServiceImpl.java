@@ -40,8 +40,8 @@ public class NewsfeedServiceImpl implements NewsfeedService{
   private final NewsfeedLikeRepository newsfeedLikeRepository;
 
   @Override
-  public NewsfeedResponseDto save(NewsfeedRequestDto dto, String email) {
-    Member member = memberService.getByMemberByEmail(email);
+  public NewsfeedResponseDto save(NewsfeedRequestDto dto, Long loggedInUserId) {
+    Member member = memberService.validateId(loggedInUserId);
     Newsfeed newsfeed = new Newsfeed(member, dto.getImage(), dto.getTitle(), dto.getContent());
     newsfeedRepository.save(newsfeed);
     long like = newsfeedLikeRepository.countByNewsfeedId(newsfeed.getId());
@@ -78,9 +78,9 @@ public class NewsfeedServiceImpl implements NewsfeedService{
 
   @Transactional
   @Override
-  public NewsfeedResponseDto updateNewsfeed(Long id, NewsfeedRequestDto dto, String email) {
+  public NewsfeedResponseDto updateNewsfeed(Long id, NewsfeedRequestDto dto, Long loggedInUserId) {
     Newsfeed newsfeed = findNewsfeedByIdOrElseThrow(id);
-    checkEmail(email, newsfeed);
+    checkMemberId(loggedInUserId, newsfeed);
     newsfeed.updateNewsfeed(dto);
     long like = newsfeedLikeRepository.countByNewsfeedId(newsfeed.getId());
     return new NewsfeedResponseDto(newsfeed.getFeedImage(), newsfeed.getTitle(), newsfeed.getContent(), newsfeed.getMember().getEmail(), like, newsfeed.getUpdatedAt());
@@ -88,9 +88,9 @@ public class NewsfeedServiceImpl implements NewsfeedService{
 
   @Transactional
   @Override
-  public void delete(Long id, String email) {
+  public void delete(Long id, Long loggedInUserId) {
     Newsfeed newsfeed = findNewsfeedByIdOrElseThrow(id);
-    checkEmail(email, newsfeed);
+    checkMemberId(loggedInUserId, newsfeed);
     deleteNewsfeedLike(id);
     newsfeedRepository.delete(newsfeed);
   }
@@ -101,8 +101,8 @@ public class NewsfeedServiceImpl implements NewsfeedService{
         .orElseThrow(() -> new NotFoundException(NOT_FOUND_NEWSFEED));
   }
 
-  private void checkEmail(String email, Newsfeed newsfeed) {
-    if(!newsfeed.getMember().getEmail().equals(email)) {
+  private void checkMemberId(Long loggedInUserId, Newsfeed newsfeed) {
+    if(!newsfeed.getMember().getId().equals(loggedInUserId)) {
       throw new NoAuthorizedException(NO_AUTHOR_CHANGE);
     }
   }

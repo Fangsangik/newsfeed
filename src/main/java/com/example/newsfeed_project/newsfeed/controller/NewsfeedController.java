@@ -1,17 +1,15 @@
 package com.example.newsfeed_project.newsfeed.controller;
 
+import static java.util.Objects.isNull;
 import com.example.newsfeed_project.newsfeed.dto.NewsfeedRequestDto;
 import com.example.newsfeed_project.newsfeed.dto.NewsfeedResponseDto;
-import com.example.newsfeed_project.newsfeed.dto.NewsfeedTermRequestDto;
 import com.example.newsfeed_project.newsfeed.service.NewsfeedService;
-import com.example.newsfeed_project.util.SessionUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
@@ -44,8 +42,8 @@ public class NewsfeedController {
       HttpServletRequest request
   ) {
     HttpSession session = request.getSession(false);
-    String email = session.getAttribute("email").toString();
-    NewsfeedResponseDto newsfeedResponseDto = newsfeedService.save(newsfeedRequestDto, email);
+    Long loggedInUserId = (Long) session.getAttribute("id");
+    NewsfeedResponseDto newsfeedResponseDto = newsfeedService.save(newsfeedRequestDto, loggedInUserId);
     return new ResponseEntity<>(newsfeedResponseDto, HttpStatus.CREATED);
   }
 
@@ -54,13 +52,13 @@ public class NewsfeedController {
   public ResponseEntity<List<NewsfeedResponseDto>> findAll(
       @RequestParam(required = false, defaultValue = "false") boolean isLike,
       @RequestParam(required = false) Long memberId,
-      @RequestParam(required = false, defaultValue = "null") String startDateStr,
-      @RequestParam(required = false, defaultValue = "null") String endDateStr,
+      @RequestParam(required = false) String startDateStr,
+      @RequestParam(required = false) String endDateStr,
       @PageableDefault(size = 10, sort = "updatedAt", direction = Direction.DESC)
       Pageable pageable
   ){
-    LocalDate startDate = (!"null".equals(startDateStr)/*startDateStr.isEmpty()*/) ? LocalDate.parse(startDateStr) : LocalDate.EPOCH;
-    LocalDate endDate = (!"null".equals(endDateStr) /*endDateStr.isEmpty()*/) ? LocalDate.parse(endDateStr) : LocalDate.now();
+    LocalDate startDate = (!isNull(startDateStr)) ? LocalDate.parse(startDateStr) : LocalDate.EPOCH;
+    LocalDate endDate = (!isNull(endDateStr)) ? LocalDate.parse(endDateStr) : LocalDate.now();
     List<NewsfeedResponseDto> list = newsfeedService.findNewsfeed(isLike, memberId, startDate, endDate, pageable);
     return new ResponseEntity<>(list, HttpStatus.OK);
   }
@@ -73,8 +71,8 @@ public class NewsfeedController {
       HttpServletRequest request
   ){
     HttpSession session = request.getSession(false);
-    String email = session.getAttribute("email").toString();
-    NewsfeedResponseDto newsfeedResponseDto = newsfeedService.updateNewsfeed(id, newsfeedRequestDto, email);
+    Long loggedInUserId = (Long) session.getAttribute("id");
+    NewsfeedResponseDto newsfeedResponseDto = newsfeedService.updateNewsfeed(id, newsfeedRequestDto, loggedInUserId);
     return new ResponseEntity<>(newsfeedResponseDto, HttpStatus.OK);
   }
 
@@ -85,8 +83,8 @@ public class NewsfeedController {
       HttpServletRequest request
   ){
     HttpSession session = request.getSession(false);
-    String email = session.getAttribute("email").toString();
-    newsfeedService.delete(id, email);
+    Long loggedInUserId = (Long) session.getAttribute("id");
+    newsfeedService.delete(id, loggedInUserId);
     return new ResponseEntity<>("Deleted", HttpStatus.OK);
   }
 }

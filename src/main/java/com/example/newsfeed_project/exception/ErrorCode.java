@@ -41,6 +41,8 @@ public enum ErrorCode {
   // InternalServerException
   //세션이 만료되었을 때 출력하는 오류 메시지
   SESSION_TIMEOUT("세션이 만료되었습니다.", HttpStatus.SERVICE_UNAVAILABLE),
+  //잘못된 요청
+  WRONG_REQUEST("지원하지 않는 요청입니다.", HttpStatus.SERVICE_UNAVAILABLE),
 
   // DuplicatedException
   //이미 좋아요를 누른 게시글에 좋아요를 누른 경우

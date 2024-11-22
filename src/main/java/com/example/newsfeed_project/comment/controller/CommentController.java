@@ -4,7 +4,6 @@ import com.example.newsfeed_project.comment.dto.CommentRequestDto;
 import com.example.newsfeed_project.comment.dto.CommentResponseDto;
 import com.example.newsfeed_project.comment.dto.UpdateCommentResponseDto;
 import com.example.newsfeed_project.comment.service.CommentService;
-import com.example.newsfeed_project.util.SessionUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
