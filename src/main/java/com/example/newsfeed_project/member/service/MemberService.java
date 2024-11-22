@@ -8,13 +8,11 @@ import jakarta.servlet.http.HttpSession;
 
 public interface MemberService {
     MemberDto createMember(MemberDto memberDto);
-    MemberUpdateResponseDto updateMember(String email, MemberUpdateRequestDto requestDto);
+    MemberUpdateResponseDto updateMember(MemberUpdateRequestDto requestDto);
     MemberDto getMemberById(Long id);
-    MemberDto getMemberByEmail(String email);
     void deleteMemberById(Long id, String password);
     MemberDto changePassword(String oldPassword, String newPassword, HttpSession session);
     Member validateId(Long id);
-    Member validateEmail(String email);
-    boolean authenticate(String email, String password);
-    void restoreMember(Long id);
+    Member getByMemberByEmail(String email);
+    Long authenticateAndGetId(String email, String password);
 }
