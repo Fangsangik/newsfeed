@@ -85,6 +85,6 @@ public class NewsfeedController {
     HttpSession session = request.getSession(false);
     Long loggedInUserId = (Long) session.getAttribute("id");
     newsfeedService.delete(id, loggedInUserId);
-    return new ResponseEntity<>("Deleted", HttpStatus.OK);
+    return new ResponseEntity<>("뉴스피드가 성공적으로 삭제되었습니다.", HttpStatus.OK);
   }
 }
