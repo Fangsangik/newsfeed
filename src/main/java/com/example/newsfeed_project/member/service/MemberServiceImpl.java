@@ -62,7 +62,7 @@ public class MemberServiceImpl implements MemberService {
                 .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_MEMBER));
 
         // 비밀번호 검증
-        if (!passwordEncoder.matches(requestDto.getPassword(), member.getPassword())) {
+        if (passwordEncoder.matches(requestDto.getPassword(), member.getPassword())) {
             throw new InvalidInputException(WRONG_PASSWORD);
         }
 
@@ -86,7 +86,7 @@ public class MemberServiceImpl implements MemberService {
     public void deleteMemberById(Long id, String password) {
         Member member = validateId(id);
 
-        if (!passwordEncoder.matches(password, member.getPassword())) {
+        if (passwordEncoder.matches(password, member.getPassword())) {
             throw new InvalidInputException(WRONG_PASSWORD);
         }
 
@@ -105,7 +105,7 @@ public class MemberServiceImpl implements MemberService {
 
         Member member = validateId(memberId);
 
-        if (!passwordEncoder.matches(oldPassword, member.getPassword())) {
+        if (passwordEncoder.matches(oldPassword, member.getPassword())) {
             throw new InvalidInputException(WRONG_PASSWORD);
         }
 
