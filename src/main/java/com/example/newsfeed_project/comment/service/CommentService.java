@@ -39,7 +39,7 @@ public class CommentService {
     //댓글 생성
     public CommentResponseDto createComment(Long newsfeedId, CommentRequestDto dto, String email) {
         Newsfeed newsfeed = newsfeedService.findNewsfeedByIdOrElseThrow(newsfeedId);
-        Member member = memberService.validateEmail(email);
+        Member member = memberService.getByMemberByEmail(email);
         Comment comment = Comment.toEntity(dto);
         comment.setMember(member);
         comment.setNewsFeed(newsfeed);
@@ -67,7 +67,7 @@ public class CommentService {
         //댓글 존재 여부 확인
         findCommentByIdOrElseThrow(commentId);
 
-        Member member = memberService.validateEmail(email);
+        Member member = memberService.getByMemberByEmail(email);
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new IllegalArgumentException("뉴스피드를 찾지 못했습니다."));
         Newsfeed newsfeed = newsfeedRepository.findById(comment.getFeed().getId()).orElseThrow(() -> new IllegalArgumentException("뉴스피드를 찾지 못했습니다."));
 
@@ -86,7 +86,7 @@ public class CommentService {
         //댓글 존재 여부 확인
         findCommentByIdOrElseThrow(commentId);
 
-        Member member = memberService.validateEmail(email);
+        Member member = memberService.getByMemberByEmail(email);
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new IllegalArgumentException("댓글을 찾지 못했습니다."));
         Newsfeed newsfeed = newsfeedRepository.findById(comment.getFeed().getId()).orElseThrow(() -> new IllegalArgumentException("뉴스피드를 찾지 못했습니다."));
 
