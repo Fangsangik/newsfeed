@@ -3,6 +3,7 @@ package com.example.newsfeed_project.comment.service;
 import com.example.newsfeed_project.comment.dto.CommentRequestDto;
 import com.example.newsfeed_project.comment.dto.CommentResponseDto;
 import com.example.newsfeed_project.comment.entity.Comment;
+import com.example.newsfeed_project.comment.entity.CommentLike;
 import com.example.newsfeed_project.comment.repository.CommentLikeRepository;
 import com.example.newsfeed_project.comment.repository.CommentRepository;
 import com.example.newsfeed_project.exception.NoAuthorizedException;
@@ -126,8 +127,15 @@ public class CommentService {
         }
     }
 
-    public void deleteByNewsfeedId(Newsfeed newsfeed, Long loggedInUserId){
-        commentRepository.deleteByNewsfeedId(newsfeed.getId());
+    public void deleteByNewsfeedId(Long newsfeedId, Long loggedInUserId){
+        List<Comment> comment = commentRepository.findByFeedIdAndMemberId(newsfeedId, loggedInUserId);
+        if(comment != null) {
+            comment.stream()
+                    .peek(commentOne ->{
+                        commentLikeRepository.deleteByCommentId(commentOne.getId());
+                        commentRepository.deleteById(commentOne.getId());
+                    });
+        }
     }
 
 }

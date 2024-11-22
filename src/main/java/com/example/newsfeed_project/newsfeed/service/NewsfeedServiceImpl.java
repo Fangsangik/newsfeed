@@ -4,6 +4,8 @@ import static com.example.newsfeed_project.exception.ErrorCode.NOT_FOUND_NEWSFEE
 import static com.example.newsfeed_project.exception.ErrorCode.NO_AUTHOR_CHANGE;
 import static java.util.Objects.isNull;
 
+import com.example.newsfeed_project.comment.repository.CommentRepository;
+import com.example.newsfeed_project.comment.service.CommentService;
 import com.example.newsfeed_project.exception.NoAuthorizedException;
 import com.example.newsfeed_project.exception.NotFoundException;
 import com.example.newsfeed_project.member.entity.Member;
@@ -37,6 +39,7 @@ public class NewsfeedServiceImpl implements NewsfeedService{
   private final NewsfeedRepository newsfeedRepository;
   private final MemberService memberService;
   private final NewsfeedLikeRepository newsfeedLikeRepository;
+  private final CommentService commentService;
 
   @Override
   public NewsfeedResponseDto save(NewsfeedRequestDto dto, Long loggedInUserId) {
@@ -81,6 +84,7 @@ public class NewsfeedServiceImpl implements NewsfeedService{
   public void delete(Long id, Long loggedInUserId) {
     Newsfeed newsfeed = findNewsfeedByIdOrElseThrow(id);
     checkMemberId(loggedInUserId, newsfeed);
+    commentService.deleteByNewsfeedId(id, loggedInUserId);
     deleteNewsfeedLike(id);
     newsfeedRepository.delete(newsfeed);
   }
