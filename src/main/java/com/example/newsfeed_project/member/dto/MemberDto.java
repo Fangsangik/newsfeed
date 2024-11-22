@@ -61,20 +61,8 @@ public class MemberDto {
                 .build();
     }
 
-    public MemberDto withPassword(String password) {
-        return MemberDto.builder()
-                .id(this.id)
-                .name(this.name)
-                .email(this.email)
-                .password(password)
-                .phoneNumber(this.phoneNumber)
-                .address(this.address)
-                .age(this.age)
-                .image(this.image)
-                .updatedAt(this.updatedAt)
-                .deletedAt(this.deletedAt)
-                .createdAt(this.createdAt)
-                .build();
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public static Member toEntity(MemberDto memberDto) {

@@ -62,7 +62,7 @@ public class MemberServiceImpl implements MemberService {
                 .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_MEMBER));
 
         // 비밀번호 검증
-        if (passwordEncoder.matches(requestDto.getPassword(), member.getPassword())) {
+        if (!passwordEncoder.matches(requestDto.getPassword(), member.getPassword())) {
             throw new InvalidInputException(WRONG_PASSWORD);
         }
 
@@ -128,11 +128,10 @@ public class MemberServiceImpl implements MemberService {
         // 이메일로 사용자를 조회
         Member member = getByMemberByEmail(email);
 
-        // 비밀번호 검증
-        if (!passwordEncoder.matches(password, member.getPassword())) {
+        if (passwordEncoder.matches(password, member.getPassword())) {
             return member.getId(); // 인증 성공 시 사용자 PK 반환
         } else {
-            throw new IllegalArgumentException("비밀번호가 잘못 되었습니다."); // 예외 처리
+            throw new InvalidInputException(WRONG_PASSWORD); // 예외 처리
         }
     }
 
@@ -152,7 +151,7 @@ public class MemberServiceImpl implements MemberService {
     // 비밀번호 암호화
     private MemberDto encryptedPassword(MemberDto memberDto) {
         if (memberDto.getPassword() != null && !memberDto.getPassword().isEmpty()) {
-            memberDto.withPassword(passwordEncoder.encode(memberDto.getPassword()));
+            memberDto.setPassword(passwordEncoder.encode(memberDto.getPassword()));
         }
         return memberDto;
     }
