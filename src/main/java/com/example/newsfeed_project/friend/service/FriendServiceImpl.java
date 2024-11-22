@@ -84,11 +84,13 @@ public class FriendServiceImpl implements FriendService {
         Member loggedInUser = memberRepository.findById(loggedInUserId)
                 .orElseThrow(() -> new NoAuthorizedException(NO_SESSION));
 
-        // 요청 ID로 친구 요청을 조회
-        Friend friendRequest = friendRepository.findById(requestId)
-                .orElseThrow(() -> new NotFoundException(NOT_FOUND_FRIEND_REQUEST));
+        // requestId를 기반으로 requestFriend와 responseFriend로 조회
+        Friend friendRequest = friendRepository.findByRequestFriendAndResponseFriend(
+                memberRepository.findById(requestId)
+                        .orElseThrow(() -> new NotFoundException(NOT_FOUND_MEMBER)),
+                loggedInUser
+        ).orElseThrow(() -> new NotFoundException(NOT_FOUND_FRIEND_REQUEST));
 
-        // 현재 로그인된 사용자가 요청의 responseFriend인지 확인
         if (!friendRequest.getResponseFriend().getId().equals(loggedInUser.getId())) {
             throw new NoAuthorizedException(NO_AUTHOR_APPROVE);
         }
