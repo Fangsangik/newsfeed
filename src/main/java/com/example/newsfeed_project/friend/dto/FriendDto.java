@@ -26,6 +26,5 @@ public class FriendDto {
         this.image = friend.getRequestFriend().getImage(); // 요청자의 이미지
         this.email = friend.getRequestFriend().getEmail(); // 요청자의 이메일
         this.name = friend.getRequestFriend().getName();   // 요청자의 이름
-        this.isApproval = friend.isFriendApproval();
     }
 }

@@ -1,5 +1,9 @@
 package com.example.newsfeed_project.member.controller;
 
+import static com.example.newsfeed_project.exception.ErrorCode.DIFFERENT_EMAIL_PASSWORD;
+import static com.example.newsfeed_project.exception.ErrorCode.NO_SESSION;
+import com.example.newsfeed_project.exception.InvalidInputException;
+import com.example.newsfeed_project.exception.NoAuthorizedException;
 import com.example.newsfeed_project.member.dto.LoginRequestDto;
 import com.example.newsfeed_project.member.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,31 +27,40 @@ public class LoginController {
         this.memberService = memberService;
     }
 
+    // 로그인 처리
     @PostMapping("/login")
-    public ResponseEntity<?> login (@RequestBody LoginRequestDto loginRequestDto,
-                                    HttpServletRequest request) {
-        boolean authenticate = memberService.authenticate(loginRequestDto.getEmail(), loginRequestDto.getPassword());
-        if (authenticate) {
+    public ResponseEntity<?> login(@RequestBody LoginRequestDto loginRequestDto,
+                                   HttpServletRequest request) {
+        // 이메일과 비밀번호를 검증
+        Long userId = memberService.authenticateAndGetId(loginRequestDto.getEmail(), loginRequestDto.getPassword());
+        if (userId != null) {
+            // 기존 세션 무효화
+            HttpSession existingSession = request.getSession(false);
+            if (existingSession != null) {
+                existingSession.invalidate();
+            }
+
+            // 새로운 세션 생성
             HttpSession session = request.getSession(true);
-            session.setAttribute("email", loginRequestDto.getEmail());
-            log.info("logged in successfully : {}", loginRequestDto.getEmail());
+            session.setAttribute("id", userId);  // 세션에 사용자 PK 저장
+            log.info("로그인 성공 : User ID {}", userId);
             return ResponseEntity.status(HttpStatus.OK).body("로그인 성공");
         } else {
             log.info("로그인 실패 : {}", loginRequestDto.getEmail());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("이메일 또는 비밀번호 일치하지 않습니다.");
+            throw new InvalidInputException(DIFFERENT_EMAIL_PASSWORD);
         }
     }
 
+    // 로그아웃 처리
     @PostMapping("/logout")
-    public ResponseEntity<?> logout (HttpServletRequest request) {
+    public ResponseEntity<?> logout(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         if (session != null) {
             session.invalidate();
-            log.info("logged out successfully");
-            return ResponseEntity.status(HttpStatus.OK).body("로그아웃 성공");
+            log.info("로그아웃 성공");
         } else {
-            log.info("세션 없음 : 로그아웃 실패");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("현제 로그인 중인게 없습니다.");
+            log.info("세션 없음 : 로그아웃 처리됨");
         }
+        return ResponseEntity.status(HttpStatus.OK).body("로그아웃 성공");
     }
 }

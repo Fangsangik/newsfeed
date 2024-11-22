@@ -46,19 +46,21 @@ public class MemberDto {
                 .build();
     }
 
-    public MemberDto withPassword(String password) {
-        return MemberDto.builder()
-                .id(this.id)
-                .name(this.name)
-                .email(this.email)
-                .password(password)
-                .phoneNumber(this.phoneNumber)
-                .address(this.address)
-                .age(this.age)
-                .image(this.image)
-                .updatedAt(this.updatedAt)
-                .deletedAt(this.deletedAt)
-                .createdAt(this.createdAt)
+    //update
+    public void withPassword(String password) {
+        this.password = password;
+    }
+
+    public static Member toEntity(MemberDto memberDto) {
+        return Member.builder()
+                .name(memberDto.getName())
+                .email(memberDto.getEmail())
+                .password(memberDto.getPassword())
+                .phoneNumber(memberDto.getPhoneNumber())
+                .address(memberDto.getAddress())
+                .age(memberDto.getAge())
+                .image(memberDto.getImage())
+                .deletedAt(memberDto.getDeletedAt())
                 .build();
     }
 }

@@ -1,16 +1,17 @@
 package com.example.newsfeed_project.member.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class DeleteRequestDto {
+
+    private Long id;
+
     @NotBlank(message = "비밀번호는 필수입니다.")
-    private String oldPassword;
-
-    public String getOldPassword() {
-        return oldPassword;
-    }
-
-    public void setOldPassword(String oldPassword) {
-        this.oldPassword = oldPassword;
-    }
+    private String password;
 }

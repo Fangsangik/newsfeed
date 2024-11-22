@@ -1,15 +1,13 @@
 package com.example.newsfeed_project.member.controller;
 
-import com.example.newsfeed_project.member.dto.MemberDto;
-import com.example.newsfeed_project.member.dto.MemberUpdateResponseDto;
-import com.example.newsfeed_project.member.dto.PasswordRequestDto;
+import com.example.newsfeed_project.member.dto.*;
 import com.example.newsfeed_project.member.service.MemberService;
-import com.example.newsfeed_project.util.SessionUtil;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequestMapping("/members")
@@ -22,51 +20,43 @@ public class MemberController {
     }
 
 
-    @GetMapping("/id")
-    public ResponseEntity<?> getProfile(HttpServletRequest request) {
-        String email = SessionUtil.validateSession(request.getSession(false));
-        MemberDto memberByEmail = memberService.getMemberByEmail(email);
-        return ResponseEntity.status(HttpStatus.OK).body(memberByEmail);
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getProfile(@PathVariable Long id) {
+        MemberDto getMemberId = memberService.getMemberById(id);
+        return ResponseEntity.status(HttpStatus.OK).body(getMemberId);
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> createMember(@RequestBody MemberDto memberDto) {
+    public ResponseEntity<?> createMember(@Valid @RequestBody MemberDto memberDto, HttpSession session) {
+        Long loggedInUserId = (Long) session.getAttribute("id");
         MemberDto createdMember = memberService.createMember(memberDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdMember);
     }
 
-    @PutMapping("/memberUpdate")
-    public ResponseEntity<?> updateMember(@RequestBody MemberDto memberDto, HttpServletRequest request) {
-        String email = SessionUtil.validateSession(request.getSession(false));
-        MemberDto existingMember = memberService.getMemberByEmail(email);
-        MemberDto updatedMember = memberService.updateMember(existingMember.getId(), memberDto.getPassword(), memberDto);
-        MemberUpdateResponseDto responseDto = MemberUpdateResponseDto.toResponseDto(updatedMember);
+    @PutMapping("/update")
+    public ResponseEntity<MemberUpdateResponseDto> updateMember(
+            @Valid @RequestBody MemberUpdateRequestDto requestDto,
+            HttpSession session) {
+        Long loggedInUserId = (Long) session.getAttribute("id");
+
+        // 업데이트 서비스 호출
+        MemberUpdateResponseDto responseDto = memberService.updateMember(requestDto);
+
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 
-    @GetMapping("/email")
-    public ResponseEntity<?> findByEmail(@RequestParam String email, HttpServletRequest request) {
-        String sessionEmail = SessionUtil.validateSession(request.getSession(false));
-
-        if (!sessionEmail.equals(email)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("권한이 없습니다.");
-        }
-
-        MemberDto memberByEmail = memberService.getMemberByEmail(email);
-        return ResponseEntity.status(HttpStatus.OK).body(memberByEmail);
-    }
-
-    @PutMapping("/password/{id}")
-    public ResponseEntity<?> changePassword(@RequestBody PasswordRequestDto passwordRequestDto, HttpSession session) {
+    @PutMapping("/password")
+    public ResponseEntity<?> changePassword(@Valid @RequestBody PasswordRequestDto passwordRequestDto, HttpSession session) {
+        Long loggedInUserId = (Long) session.getAttribute("id");
         MemberDto memberDto = memberService.changePassword(passwordRequestDto.getOldPassword(), passwordRequestDto.getNewPassword(), session);
         return ResponseEntity.status(HttpStatus.OK).body(memberDto);
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<?> deleteMemberById(HttpServletRequest request) {
-        String email = SessionUtil.validateSession(request.getSession(false));
-        MemberDto existingMember = memberService.getMemberByEmail(email);
-        memberService.deleteMemberById(existingMember.getId());
+    public ResponseEntity<?> deleteMemberById(@Valid @RequestBody DeleteRequestDto deleteRequestDto, HttpSession session) {
+        Long loggedInUserId = (Long) session.getAttribute("id");
+        // 회원 탈퇴 처리 (비밀번호 검증 포함)
+        memberService.deleteMemberById(deleteRequestDto.getId(), deleteRequestDto.getPassword());
         return ResponseEntity.status(HttpStatus.OK).body("회원 삭제가 완료되었습니다.");
     }
 }

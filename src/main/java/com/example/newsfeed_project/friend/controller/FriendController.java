@@ -1,9 +1,8 @@
 package com.example.newsfeed_project.friend.controller;
 
+import com.example.newsfeed_project.friend.dto.AcceptFriendDto;
 import com.example.newsfeed_project.friend.dto.FriendDto;
 import com.example.newsfeed_project.friend.service.FriendService;
-import com.example.newsfeed_project.newsfeed.dto.NewsfeedResponseDto;
-import com.example.newsfeed_project.util.SessionUtil;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -22,50 +21,36 @@ public class FriendController {
 
 
     //친구 리스트 조회
-    @GetMapping("/friendList")
+    @GetMapping("/")
     public ResponseEntity<?> getFriendList(@RequestParam(defaultValue = "0") int page,
                                            @RequestParam(defaultValue = "10") int size,
                                            HttpSession session) {
-        String loggedInUserEmail = SessionUtil.validateSession(session);
-
-        Page<FriendDto> response = friendService.getApprovedFriendList(page, size, loggedInUserEmail);
-
-        return ResponseEntity.status(HttpStatus.OK).body(response);
-    }
-    //친구 뉴스피드 리스트 조회
-    @GetMapping("/friendnewsfeed")
-    public ResponseEntity<?> getFriendNewsfeed(@RequestParam(defaultValue = "0") int page,
-                                               @RequestParam(defaultValue = "10") int size,
-                                               HttpSession session) {
-        String loggedInUserEmail = SessionUtil.validateSession(session);
-        Page<NewsfeedResponseDto> response = friendService.findFriendsNewsfeed(page, size, loggedInUserEmail);
+        Long loggedInUserId = (Long) session.getAttribute("id");
+        Page<FriendDto> response = friendService.getApprovedFriendList(page, size, loggedInUserId);
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
     // 친구 요청 생성
-    @PostMapping("/request")
+    @PostMapping("/")
     public ResponseEntity<String> sendFriendRequest(@RequestBody FriendDto friendDto, HttpSession session) {
-        String loggedInUserEmail = SessionUtil.validateSession(session);
-        friendService.sendFriendRequest(friendDto, loggedInUserEmail);
+
+        Long loggedInUserId = (Long) session.getAttribute("id");
+
+        friendService.sendFriendRequest(friendDto, loggedInUserId);
         return ResponseEntity.ok("친구 요청이 성공적으로 보내졌습니다.");
     }
 
     // 친구 요청 승인/거부 API
-    @PatchMapping("/accept/{requestId}")
+    @PatchMapping("/accept") //requestBody에 -> 따로 뽑아서 보내주게 설정
     public ResponseEntity<String> acceptFriendRequest(
-            @PathVariable Long requestId,
-            @RequestParam Long responseId,
-            @RequestParam boolean isAccepted,
+            @RequestBody AcceptFriendDto acceptFriendDto,
             HttpSession session) {
-
-        // 세션에서 현재 로그인된 사용자의 이메일 확인
-        String loggedInUserEmail = SessionUtil.validateSession(session);
-
+        Long loggedInUserId = (Long) session.getAttribute("id");
         // 서비스 레이어 호출: 요청 처리
-        friendService.acceptFriendRequest(requestId, responseId, isAccepted, loggedInUserEmail);
-
+        friendService.acceptFriendRequest(acceptFriendDto.getRequestId(), acceptFriendDto.isAccepted(), loggedInUserId);
         // 처리 결과 메시지 생성
-        String responseMessage = isAccepted ? "친구 요청이 수락되었습니다." : "친구 요청이 거절되었습니다.";
+        String responseMessage = acceptFriendDto.isAccepted() ? "친구 요청이 수락되었습니다." : "친구 요청이 거절되었습니다.";
         return ResponseEntity.ok(responseMessage);
     }
 
@@ -75,8 +60,8 @@ public class FriendController {
             @PathVariable Long requestId,
             @RequestParam Long responseId,
             HttpSession session) {
+        Long loggedInUserId = (Long) session.getAttribute("id");
 
-        String loggedInUserEmail = SessionUtil.validateSession(session);
         try {
             // 서비스 호출
             friendService.deleteFriendByResponseId(requestId, responseId);
