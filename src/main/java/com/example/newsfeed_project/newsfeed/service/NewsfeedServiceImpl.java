@@ -41,7 +41,7 @@ public class NewsfeedServiceImpl implements NewsfeedService{
 
   @Override
   public NewsfeedResponseDto save(NewsfeedRequestDto dto, String email) {
-    Member member = memberService.validateEmail(email);
+    Member member = memberService.getByMemberByEmail(email);
     Newsfeed newsfeed = new Newsfeed(member, dto.getImage(), dto.getTitle(), dto.getContent());
     newsfeedRepository.save(newsfeed);
     long like = newsfeedLikeRepository.countByNewsfeedId(newsfeed.getId());

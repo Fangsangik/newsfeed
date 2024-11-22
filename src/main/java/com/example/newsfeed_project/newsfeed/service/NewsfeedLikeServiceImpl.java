@@ -41,7 +41,7 @@ public class NewsfeedLikeServiceImpl implements NewsfeedLikeService {
   }
 
   private NewsfeedLike checkLike(String email, long newsfeedId) {
-    Member member = memberService.validateEmail(email);
+    Member member = memberService.getByMemberByEmail(email);
     Newsfeed newsfeed = newsfeedService.findNewsfeedByIdOrElseThrow(newsfeedId);
     checkAuthor(newsfeed, email);
     NewsfeedLike newsfeedLike = newsfeedLikeRepository.findByNewsfeedIdAndMemberId(newsfeedId, member.getId());
