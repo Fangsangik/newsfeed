@@ -5,14 +5,13 @@ import com.example.newsfeed_project.member.dto.MemberDto;
 import com.example.newsfeed_project.member.dto.MemberUpdateRequestDto;
 import com.example.newsfeed_project.member.dto.MemberUpdateResponseDto;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Builder
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter

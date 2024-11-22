@@ -33,6 +33,7 @@ public class LoginController {
                                    HttpServletRequest request) {
         // 이메일과 비밀번호를 검증
         Long userId = memberService.authenticateAndGetId(loginRequestDto.getEmail(), loginRequestDto.getPassword());
+        log.debug("authenticateAndGetId 결과: {}", userId);
         if (userId != null) {
             // 기존 세션 무효화
             HttpSession existingSession = request.getSession(false);

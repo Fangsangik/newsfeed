@@ -129,12 +129,13 @@ public class MemberServiceImpl implements MemberService {
         Member member = getByMemberByEmail(email);
 
         // 비밀번호 검증
-        if (passwordEncoder.matches(password, member.getPassword())) {
+        if (!passwordEncoder.matches(password, member.getPassword())) {
             return member.getId(); // 인증 성공 시 사용자 PK 반환
         } else {
-            throw new InvalidInputException(ErrorCode.DIFFERENT_EMAIL_PASSWORD); // 예외 처리
+            throw new IllegalArgumentException("비밀번호가 잘못 되었습니다."); // 예외 처리
         }
     }
+
 
     // PK 기반 멤버 검증
     public Member validateId(Long id) {

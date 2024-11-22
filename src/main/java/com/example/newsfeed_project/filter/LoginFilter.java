@@ -15,27 +15,28 @@ public class LoginFilter implements Filter {
     private static final String[] whiteList = {"/api/login", "/api/logout", "/members/register"};
     private static final String SESSION_ID_KEY = "id";
 
+
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
-        String requestURI = request.getRequestURI();
         HttpServletResponse response = (HttpServletResponse) servletResponse;
+        String requestURI = request.getRequestURI();
 
         try {
             log.info("인증 체크 시작 - URI: {}, Method: {}, IP: {}",
                     requestURI, request.getMethod(), request.getRemoteAddr());
 
-            // 화이트리스트 체크
-            if (isWhiteListPath(requestURI)) {
-                log.info("화이트리스트 경로 요청 - URI: {}", requestURI);
+            // /members/{id} 경로 처리
+            if (requestURI.matches("/members/\\d+")) {
+                log.info("/members/{id} 경로 요청 - URI: {}", requestURI);
                 filterChain.doFilter(servletRequest, servletResponse);
                 return;
             }
 
-            // /members/{id} 경로 처리
-            if (requestURI.matches("/members/\\d+")) {
-                log.info("/members/{id} 경로 요청 - URI: {}", requestURI);
+            // 화이트리스트 체크
+            if (isWhiteListPath(requestURI)) {
+                log.info("화이트리스트 경로 요청 - URI: {}", requestURI);
                 filterChain.doFilter(servletRequest, servletResponse);
                 return;
             }
@@ -51,6 +52,7 @@ public class LoginFilter implements Filter {
                     return;
                 }
             }
+
 
             // 필터 체인 계속 진행
             filterChain.doFilter(request, response);
