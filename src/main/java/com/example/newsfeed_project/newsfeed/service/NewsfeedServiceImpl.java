@@ -49,15 +49,6 @@ public class NewsfeedServiceImpl implements NewsfeedService{
   }
 
   @Override
-  public List<NewsfeedResponseDto> findAll(boolean isLike, Pageable pageable) {
-    pageable = checkSortedByLike(isLike, pageable);
-    return newsfeedRepository.findAll(pageable)
-        .stream()
-        .map(NewsfeedResponseDto::toDto)
-        .toList();
-  }
-
-  @Override
   public List<NewsfeedResponseDto> findNewsfeed(boolean isLike, Long memberId,
       LocalDate startDate, LocalDate endDate, Pageable pageable) {
     pageable = checkSortedByLike(isLike, pageable);
@@ -68,7 +59,7 @@ public class NewsfeedServiceImpl implements NewsfeedService{
           .map(NewsfeedResponseDto::toDto)
           .toList();
     }else{
-      return newsfeedRepository.findByMemberIdBetween(memberId, startDate.atStartOfDay(),
+      return newsfeedRepository.findByMemberIdAndCreatedAtBetween(memberId, startDate.atStartOfDay(),
               endDate.atTime(LocalTime.MAX), pageable)
           .stream()
           .map(NewsfeedResponseDto::toDto)

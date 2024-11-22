@@ -1,5 +1,7 @@
 package com.example.newsfeed_project.newsfeed.controller;
 
+import static java.util.Objects.isNull;
+
 import com.example.newsfeed_project.newsfeed.dto.NewsfeedRequestDto;
 import com.example.newsfeed_project.newsfeed.dto.NewsfeedResponseDto;
 import com.example.newsfeed_project.newsfeed.dto.NewsfeedTermRequestDto;
@@ -54,13 +56,13 @@ public class NewsfeedController {
   public ResponseEntity<List<NewsfeedResponseDto>> findAll(
       @RequestParam(required = false, defaultValue = "false") boolean isLike,
       @RequestParam(required = false) Long memberId,
-      @RequestParam(required = false, defaultValue = "null") String startDateStr,
-      @RequestParam(required = false, defaultValue = "null") String endDateStr,
+      @RequestParam(required = false) String startDateStr,
+      @RequestParam(required = false) String endDateStr,
       @PageableDefault(size = 10, sort = "updatedAt", direction = Direction.DESC)
       Pageable pageable
   ){
-    LocalDate startDate = (!"null".equals(startDateStr)/*startDateStr.isEmpty()*/) ? LocalDate.parse(startDateStr) : LocalDate.EPOCH;
-    LocalDate endDate = (!"null".equals(endDateStr) /*endDateStr.isEmpty()*/) ? LocalDate.parse(endDateStr) : LocalDate.now();
+    LocalDate startDate = (!isNull(startDateStr)) ? LocalDate.parse(startDateStr) : LocalDate.EPOCH;
+    LocalDate endDate = (!isNull(endDateStr)) ? LocalDate.parse(endDateStr) : LocalDate.now();
     List<NewsfeedResponseDto> list = newsfeedService.findNewsfeed(isLike, memberId, startDate, endDate, pageable);
     return new ResponseEntity<>(list, HttpStatus.OK);
   }
