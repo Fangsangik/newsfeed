@@ -48,8 +48,13 @@ public class MemberServiceImpl implements MemberService {
 
         // 비밀번호 암호화 및 회원 생성
         memberDto = encryptedPassword(memberDto);
+        log.debug("암호화된 비밀번호: {}", memberDto.getPassword());
+
         Member newMember = MemberDto.toEntity(memberDto);
+        log.debug("Entity 생성 후 비밀번호: {}", newMember.getPassword());
+
         Member savedMember = memberRepository.save(newMember);
+        log.debug("저장된 Member 비밀번호: {}", savedMember.getPassword());
 
         return MemberDto.toDto(savedMember);
     }
@@ -86,7 +91,7 @@ public class MemberServiceImpl implements MemberService {
     public void deleteMemberById(Long id, String password) {
         Member member = validateId(id);
 
-        if (passwordEncoder.matches(password, member.getPassword())) {
+        if (!passwordEncoder.matches(password, member.getPassword())) {
             throw new InvalidInputException(WRONG_PASSWORD);
         }
 
@@ -105,7 +110,7 @@ public class MemberServiceImpl implements MemberService {
 
         Member member = validateId(memberId);
 
-        if (passwordEncoder.matches(oldPassword, member.getPassword())) {
+        if (!passwordEncoder.matches(oldPassword, member.getPassword())) {
             throw new InvalidInputException(WRONG_PASSWORD);
         }
 
@@ -151,7 +156,11 @@ public class MemberServiceImpl implements MemberService {
     // 비밀번호 암호화
     private MemberDto encryptedPassword(MemberDto memberDto) {
         if (memberDto.getPassword() != null && !memberDto.getPassword().isEmpty()) {
-            memberDto.setPassword(passwordEncoder.encode(memberDto.getPassword()));
+            String rawPassword = memberDto.getPassword();
+            String encodedPassword = passwordEncoder.encode(rawPassword);
+            log.debug("원문 비밀번호: {}", rawPassword);
+            log.debug("암호화된 비밀번호: {}", encodedPassword);
+            memberDto.setPassword(encodedPassword);
         }
         return memberDto;
     }
