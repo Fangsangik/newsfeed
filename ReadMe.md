@@ -15,7 +15,7 @@ About Project
 
 Trouble Shooting
 ---
-## Newsfeed package
+### Newsfeed package
 * JPA 쿼리 중 findBy, deleteBy, save 등과 같은 기본 JPA이외의 JPA 쿼리문을 사용하는데 어려움이 있었습니다.
 * * 이때 JAP 공식문서를 참고하면서 문제를 풀어나갈 수 있었습니다.
 
