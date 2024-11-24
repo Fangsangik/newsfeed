@@ -47,8 +47,17 @@
 **NewsFeedLike**
 - 좋아요를 구현하면서 좋아요 테이블과 뉴스피드 테이블사이의 관계에 관하여 고민을 많이 하였습니다. 초기설정과 다르게 뉴스피드에서도 자신의 좋아요 갯수 정보를 가지고 있어야한다는 것을 확인하였고, 연관관계를 개선하였습니다.
 
+**Comment**
+1. git repository를 생성 시에 gitignore이 존재하지 않아 올라가면 안될 시 여러 파일들이 main에 생성되었고 main에서 다른 브랜치로 체크아웃 시
+   2The following untracked working tree files would be overwritten by checkout와 같은 에러가 발생하였고 해결하기 위해 git clean -d -f -f를 터미널에서 입력 후에 다른 branch로 checkout을 실행하였습니다. 잘 실행되었고 git add -A -> git stash -> git pull 과 같은 방법으로 잘 해결되지 않아 위와 같은 방법으로 적용하였습니다.
+
+
+2. 댓글 수정 및 삭제 시 게시글 작성자, 댓글 작성자만 가능하게 하는 부분에서 댓글을 삭제하려는 사용자의 comment.memberId, newsfeed.memberId를 가져와 처리하는데 만약 사용자의 comment, newsfeed가 모두 없을 시  Nullexception이 발생하였고 if( comment != null && comment != null)로 처리하여 해결하였고 만약 댓글 삭제시 댓글에 대한 좋아요가 존재할 시 if(commentLikeRepository.findByCommentId(commentId) != null)로 검사하여 같이 삭제할 수 있도록 하였습니다.
+
+
 ---
 ## 😭 아쉬운점 
 - 깃 컨벤션을 어느 블로그의 링크를 걸고 정했으나, 나중에는 코드를 작성하기 급급해 정확히 지켜지지 않아 아쉬웠다. 
 - 깃이 모두가 익숙하지 않아 깃에서 시간을 잡아 먹은 부분이 아쉬웠다. 
 - 다른 사람의 코드를 보는 눈을 길러야 겠다고 느꼈다. 단순히 물어보는게 아닌 코드를 먼저 읽어보고, 의도를 생각해보는 힘을 길러야 겠다고 느꼈다.
+ 
