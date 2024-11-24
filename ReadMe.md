@@ -38,6 +38,8 @@
 **GIT**
 - merge, pull, push중 혼자 할때와 협업을 할때 충돌의 빈도도 다르고, 충돌시 code가 날라가는 경우도 많았고, 충돌의 빈도가 많아 branch 설계 방식을 시도 했지만, 결국 잘 지켜지지 않은 것 같다. 
 - .build, .gradle이 git에 올릴때 들어가면 안되는데 main에 gitIgnore를 제대로 확인하지 못해 위와 같은 기능이 git에 들어가게 되었다.
+- git repository를 생성 시에 gitignore이 존재하지 않아 올라가면 안될 시 여러 파일들이 main에 생성되었고 main에서 다른 브랜치로 체크아웃 시
+     2The following untracked working tree files would be overwritten by checkout와 같은 에러가 발생하였고 해결하기 위해 git clean -d -f -f를 터미널에서 입력 후에 다른 branch로 checkout을 실행하였습니다. 잘 실행되었고 git add -A -> git stash -> git pull 과 같은 방법으로 잘 해결되지 않아 위와 같은 방법으로 적용하였습니다.
 
 **JPA**
 - JPA 쿼리 중 findBy, deleteBy, save 등과 같은 기본 JPA이외의 JPA 쿼리문을 사용하는데 어려움이 있었습니다. 이때 JPA 공식문서를 참고하면서 문제를 풀어나갈 수 있었습니다.
@@ -49,11 +51,8 @@
 - 좋아요를 구현하면서 좋아요 테이블과 뉴스피드 테이블사이의 관계에 관하여 고민을 많이 하였습니다. 초기설정과 다르게 뉴스피드에서도 자신의 좋아요 갯수 정보를 가지고 있어야한다는 것을 확인하였고, 연관관계를 개선하였습니다.
 
 **Comment**
-1. git repository를 생성 시에 gitignore이 존재하지 않아 올라가면 안될 시 여러 파일들이 main에 생성되었고 main에서 다른 브랜치로 체크아웃 시
-   2The following untracked working tree files would be overwritten by checkout와 같은 에러가 발생하였고 해결하기 위해 git clean -d -f -f를 터미널에서 입력 후에 다른 branch로 checkout을 실행하였습니다. 잘 실행되었고 git add -A -> git stash -> git pull 과 같은 방법으로 잘 해결되지 않아 위와 같은 방법으로 적용하였습니다.
 
-
-2. 댓글 수정 및 삭제 시 게시글 작성자, 댓글 작성자만 가능하게 하는 부분에서 댓글을 삭제하려는 사용자의 comment.memberId, newsfeed.memberId를 가져와 처리하는데 만약 사용자의 comment, newsfeed가 모두 없을 시  Nullexception이 발생하였고 if( comment != null && comment != null)로 처리하여 해결하였고 만약 댓글 삭제시 댓글에 대한 좋아요가 존재할 시 if(commentLikeRepository.findByCommentId(commentId) != null)로 검사하여 같이 삭제할 수 있도록 하였습니다.
+- 댓글 수정 및 삭제 시 게시글 작성자, 댓글 작성자만 가능하게 하는 부분에서 댓글을 삭제하려는 사용자의 comment.memberId, newsfeed.memberId를 가져와 처리하는데 만약 사용자의 comment, newsfeed가 모두 없을 시  Nullexception이 발생하였고 if( comment != null && comment != null)로 처리하여 해결하였고 만약 댓글 삭제시 댓글에 대한 좋아요가 존재할 시 if(commentLikeRepository.findByCommentId(commentId) != null)로 검사하여 같이 삭제할 수 있도록 하였습니다.
 
 
 ---
