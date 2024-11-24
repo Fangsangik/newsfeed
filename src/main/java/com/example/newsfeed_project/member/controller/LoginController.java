@@ -1,5 +1,6 @@
 package com.example.newsfeed_project.member.controller;
 
+import static com.example.newsfeed_project.exception.ErrorCode.ALREADY_LOGIN;
 import static com.example.newsfeed_project.exception.ErrorCode.DIFFERENT_EMAIL_PASSWORD;
 import static com.example.newsfeed_project.exception.ErrorCode.NO_SESSION;
 import com.example.newsfeed_project.exception.InvalidInputException;
@@ -35,7 +36,7 @@ public class LoginController {
         HttpSession existingSession = request.getSession(false);
         if (existingSession != null && existingSession.getAttribute("id") != null) {
             log.info("이미 로그인된 세션이 존재합니다: User ID {}", existingSession.getAttribute("id"));
-            throw new NoAuthorizedException(NO_SESSION);
+            throw new NoAuthorizedException(ALREADY_LOGIN);
         }
 
         // 이메일과 비밀번호를 검증

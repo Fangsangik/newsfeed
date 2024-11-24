@@ -53,6 +53,8 @@ public enum ErrorCode {
   // NoAuthorizedException
   //로그인이 안 되었을 떄 출력하는 오류 메시지
   NO_SESSION("로그인이 필요합니다.", HttpStatus.UNAUTHORIZED),
+  //이미 로그인이 되어있을 때 출력하는 오류 메시지
+  ALREADY_LOGIN("이미 로그인이 되어있습니다.", HttpStatus.UNAUTHORIZED),
   //권한이 없는 사용자가 수정, 삭제를 하려고 할 때
   NO_AUTHOR_CHANGE("수정, 삭제는 작성자만 할 수 있습니다.", HttpStatus.UNAUTHORIZED),
   //프로필 본인 조회
