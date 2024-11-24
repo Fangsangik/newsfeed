@@ -1,5 +1,6 @@
 package com.example.newsfeed_project.friend.entity;
 
+import com.example.newsfeed_project.friend.type.FriendStatus;
 import com.example.newsfeed_project.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
@@ -12,12 +13,17 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "Friend", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"requestId", "responseId"})
+})
 public class Friend {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String status;
+    //enum 타입
+    @Enumerated(value = EnumType.STRING)
+    private FriendStatus status;
 
     private LocalDateTime updatedAt;
     private String image;
@@ -32,21 +38,5 @@ public class Friend {
     @JoinColumn(name = "response_friend_id")
     private Member responseFriend;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
 
-    // 상태 업데이트
-    public void approve() {
-        this.status = "APPROVED";
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    public void reject() {
-        this.status = "REJECTED";
-    }
-
-    public boolean isPending() {
-        return "PENDING".equals(this.status);
-    }
 }

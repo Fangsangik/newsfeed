@@ -15,10 +15,14 @@ import com.example.newsfeed_project.exception.NoAuthorizedException;
 import com.example.newsfeed_project.exception.NotFoundException;
 import com.example.newsfeed_project.friend.dto.FriendDto;
 import com.example.newsfeed_project.friend.entity.Friend;
+import com.example.newsfeed_project.friend.type.FriendStatus;
 import com.example.newsfeed_project.friend.repository.FriendRepository;
 import com.example.newsfeed_project.member.entity.Member;
 import com.example.newsfeed_project.member.repository.MemberRepository;
 
+import com.example.newsfeed_project.newsfeed.dto.NewsfeedResponseDto;
+import com.example.newsfeed_project.newsfeed.entity.Newsfeed;
+import com.example.newsfeed_project.newsfeed.repository.NewsfeedRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
@@ -33,16 +37,15 @@ import java.util.Optional;
 @Slf4j
 @Service
 public class FriendServiceImpl implements FriendService {
-
     private final FriendRepository friendRepository;
     private final MemberRepository memberRepository;
+    private final NewsfeedRepository newsfeedRepository;
 
-    public FriendServiceImpl(FriendRepository friendRepository, MemberRepository memberRepository) {
+    public FriendServiceImpl(FriendRepository friendRepository, MemberRepository memberRepository, NewsfeedRepository newsfeedRepository) {
         this.friendRepository = friendRepository;
         this.memberRepository = memberRepository;
-
+        this.newsfeedRepository = newsfeedRepository;
     }
-
     @Override
     @Transactional
     public void sendFriendRequest(FriendDto friendDto, Long loggedInUserId) {
@@ -68,7 +71,7 @@ public class FriendServiceImpl implements FriendService {
         Friend friend = Friend.builder()
                 .requestFriend(requestFriend)
                 .responseFriend(responseFriend)
-                .status("PENDING")
+                .status(FriendStatus.PENDING)
                 .build();
         friendRepository.save(friend);
 
@@ -96,14 +99,14 @@ public class FriendServiceImpl implements FriendService {
         }
 
         // 상태 업데이트 및 저장
-        String status = isApproved ? "APPROVED" : "REJECTED";
+        FriendStatus status = isApproved ? FriendStatus.APPROVED : FriendStatus.REJECTED;
         friendRequest.setStatus(status);
         friendRequest.setUpdatedAt(LocalDateTime.now());
         friendRepository.save(friendRequest);
 
         // 로그 기록
         log.info("Friend request {} for requestId={}, by userId={}",
-                isApproved ? "approved" : "rejected", requestId, loggedInUserId);
+                isApproved ? FriendStatus.APPROVED : FriendStatus.REJECTED,  requestId, loggedInUserId);
     }
 
     @Transactional(readOnly = true)
@@ -113,7 +116,7 @@ public class FriendServiceImpl implements FriendService {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
 
         // 승인된 친구 목록 조회
-        Page<Friend> friends = friendRepository.findApprovedFriendsByUserId(loggedInUserId, "APPROVED", pageable);
+        Page<Friend> friends = friendRepository.findApprovedFriendsByUserId(loggedInUserId, FriendStatus.APPROVED, pageable);
 
         // FriendDto 리스트 변환
         List<FriendDto> friendDtos = new ArrayList<>();
@@ -151,20 +154,45 @@ public class FriendServiceImpl implements FriendService {
 
     private void handleExistingRequest(Friend friend) {
         switch (friend.getStatus()) {
-            case "REJECTED":
-                friend.setStatus("PENDING");
+            case REJECTED:
+                friend.setStatus(FriendStatus.PENDING);
                 friend.setUpdatedAt(LocalDateTime.now());
                 friendRepository.save(friend);
                 log.info("거부된 요청을 새로 보냄: RequestFriendId={}, ResponseFriendId={}",
                         friend.getRequestFriend().getId(), friend.getResponseFriend().getId());
                 break;
 
-            case "APPROVED":
+            case APPROVED:
                 throw new InvalidInputException(ALREADY_FRIEND);
-            case "PENDING":
+            case PENDING:
                 throw new InvalidInputException(ALREADY_SEND);
             default:
                 throw new InternalServerException(WRONG_REQUEST);
         }
+    }
+    @Transactional(readOnly = true)
+    public Page<NewsfeedResponseDto> getFriendsNewsfeed(Long loggedInUserId, boolean isLike, Pageable pageable) {
+        pageable = checkSortedByLike(isLike, pageable);
+        // 친구 목록 가져오기
+        List<Long> friendIds = friendRepository.findApprovedFriendIdsByUserId(loggedInUserId, FriendStatus.APPROVED);
+        // 승인된 친구들의 게시물 조회
+        Page<Newsfeed> newsfeeds = newsfeedRepository.findByMemberIdIn(friendIds, pageable);
+
+        // NewsfeedResponseDto로 변환
+        List<NewsfeedResponseDto> newsfeedDtos = new ArrayList<>();
+
+        // 향상된 for문으로 Newsfeed -> NewsfeedResponseDto 변환
+        for (Newsfeed newsfeed : newsfeeds) {
+            NewsfeedResponseDto dto = NewsfeedResponseDto.toDto(newsfeed); // 변환 메서드 호출
+            newsfeedDtos.add(dto);
+        }
+        return new PageImpl<>(newsfeedDtos, pageable, newsfeeds.getTotalElements());
+    }
+    private Pageable checkSortedByLike(boolean isLike, Pageable pageable ) {
+        if (isLike) {
+            pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
+                    Sort.by("likeCount").descending().and(Sort.by("updatedAt").descending()));
+        }
+        return pageable;
     }
 }

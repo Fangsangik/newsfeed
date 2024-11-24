@@ -3,8 +3,12 @@ package com.example.newsfeed_project.friend.controller;
 import com.example.newsfeed_project.friend.dto.AcceptFriendDto;
 import com.example.newsfeed_project.friend.dto.FriendDto;
 import com.example.newsfeed_project.friend.service.FriendService;
+import com.example.newsfeed_project.newsfeed.dto.NewsfeedResponseDto;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +34,20 @@ public class FriendController {
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+    //친구 목록의 친구들 뉴스피드 리스트 조회
+    @GetMapping("/newsfeed")
+    public ResponseEntity<?> getFriendNewsfeed(
+            @RequestParam(required = false, defaultValue = "false") boolean isLike,
+            @PageableDefault(size = 10, sort = "updatedAt", direction = Direction.DESC)
+            Pageable pageable, HttpSession session)
+    {
+        Long loggedInUserId = (Long) session.getAttribute("id");
 
+        // 친구 목록에 해당하는 뉴스피드 조회
+        Page<NewsfeedResponseDto> response = friendService.getFriendsNewsfeed(loggedInUserId, isLike, pageable);
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
     // 친구 요청 생성
     @PostMapping("/")
     public ResponseEntity<String> sendFriendRequest(@RequestBody FriendDto friendDto, HttpSession session) {
