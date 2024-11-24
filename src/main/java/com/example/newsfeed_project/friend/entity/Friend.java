@@ -13,9 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "Friend", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"requestId", "responseId"})
-})
+@Table(name = "Friend")
 public class Friend {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
