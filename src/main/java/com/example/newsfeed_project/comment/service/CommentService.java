@@ -13,6 +13,7 @@ import com.example.newsfeed_project.member.service.MemberService;
 import com.example.newsfeed_project.newsfeed.entity.Newsfeed;
 import com.example.newsfeed_project.newsfeed.repository.NewsfeedRepository;
 import com.example.newsfeed_project.newsfeed.service.NewsfeedService;
+import java.util.stream.Collectors;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -130,12 +131,10 @@ public class CommentService {
     public void deleteByNewsfeedId(Long newsfeedId, Long loggedInUserId){
         List<Comment> comment = commentRepository.findByFeedIdAndMemberId(newsfeedId, loggedInUserId);
         if(comment != null) {
-            for(Comment c : comment) {
-                CommentLike commentLike = commentLikeRepository.findByCommentId(c.getId());
-                if(commentLike != null) {
-                    commentLikeRepository.delete(commentLike);
-                }
-            }
+            List<Long> commentId = comment.stream()
+                .map(Comment::getId)
+                .collect(Collectors.toList());
+            commentLikeRepository.deleteByCommentIdIn(commentId);
             commentRepository.deleteAll(comment);
         }
     }
