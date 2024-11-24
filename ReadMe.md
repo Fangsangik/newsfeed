@@ -5,7 +5,8 @@
 ## 👨‍💻 Period : 2024/11/19 ~ 2024/11/25
 ---
 ## 👨‍💻 ERD
-![ERD](https://github.com/user-attachments/assets/36cfa7e8-0c93-4c29-b9c5-820b972dd06f)
+![ERD](https://github.com/user-attachments/assets/d655185b-e952-4ec1-9c9e-4897a07dcb6e)
+
 ---
 ## 👨‍💻 API명세서
 <a-href>https://documenter.getpostman.com/view/39378739/2sAYBUCXcc</a-href>
