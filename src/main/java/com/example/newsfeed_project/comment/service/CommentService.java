@@ -43,12 +43,10 @@ public class CommentService {
     public CommentResponseDto createComment(Long newsfeedId, CommentRequestDto dto, Long loggedInUserId) {
         Newsfeed newsfeed = newsfeedRepository.findById(newsfeedId).orElseThrow(() -> new NotFoundException(NOT_FOUND_NEWSFEED));
         Member member = memberService.validateId(loggedInUserId);
-        Comment comment = Comment.toEntity(dto);
-        comment.setMember(member);
-        comment.setNewsFeed(newsfeed);
-        Comment save = commentRepository.save(comment);
+        Comment comment = Comment.commentToSave(dto, newsfeed, member);
+        commentRepository.save(comment);
 
-        return CommentResponseDto.toDto(save);
+        return CommentResponseDto.toDto(comment);
     }
 
     //댓글 전체 조회
@@ -59,18 +57,16 @@ public class CommentService {
     //댓글 단건 조회
     public CommentResponseDto findById(Long id) {
         //댓글 존재 여부 확인
-        Comment findId = findCommentByIdOrElseThrow(id);
-
-        return new CommentResponseDto(findId.getContents(), findId.getCreatedAt());
+        Comment comment = commentRepository.findById(id).orElseThrow(() -> new NotFoundException(NOT_FOUND_NEWSFEED));
+        return new CommentResponseDto(comment.getContents(), comment.getCreatedAt());
     }
 
     //댓글 수정
     @Transactional
     public CommentResponseDto updateComment(Long commentId, CommentRequestDto dto, Long loggedInUserId) {
-        //댓글 존재 여부 확인
-        findCommentByIdOrElseThrow(commentId);
-
+        //멤버 확인
         Member member = memberService.validateId(loggedInUserId);
+        //댓글 존재 여부 확인
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new NotFoundException(NOT_FOUND_NEWSFEED));
         Newsfeed newsfeed = newsfeedRepository.findById(comment.getFeed().getId()).orElseThrow(() -> new NotFoundException(NOT_FOUND_NEWSFEED));
 
@@ -87,8 +83,6 @@ public class CommentService {
     @Transactional
     public void deleteComment(Long commentId, Long loggedInUserId) {
         //댓글 존재 여부 확인
-        findCommentByIdOrElseThrow(commentId);
-
         Member member = memberService.validateId(loggedInUserId);
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new NotFoundException(NOT_FOUND_COMMENT));
         Newsfeed newsfeed = newsfeedRepository.findById(comment.getFeed().getId()).orElseThrow(() -> new NotFoundException(NOT_FOUND_NEWSFEED));
@@ -102,27 +96,16 @@ public class CommentService {
         commentRepository.deleteById(commentId);
     }
 
-    public Comment findCommentByIdOrElseThrow(Long id) {
-        return commentRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(NOT_FOUND_COMMENT));
-    }
-
     //댓글 수정,삭제 시 댓글 작성자 or 게시글 작성자만 가능
     private void checkCommentAuthorOrNewsfeedAuthor(Long loggedInUserId, Comment comment, Newsfeed newsfeed) {
         if (newsfeed != null && comment != null) {
-            if(!comment.getMember().getId().equals(loggedInUserId)) {
-                if (!newsfeed.getMember().getId().equals(loggedInUserId)) {
+            if(!comment.getMember().getId().equals(loggedInUserId) && !newsfeed.getMember().getId().equals(loggedInUserId)) {
                     throw new NoAuthorizedException(NO_AUTHOR_CHANGE);
-                }
             }
-        } else if (newsfeed != null && comment == null) {
-            if (!newsfeed.getMember().getId().equals(loggedInUserId)) {
+        } else if (newsfeed != null && !newsfeed.getMember().getId().equals(loggedInUserId)) {
                 throw new NoAuthorizedException(NO_AUTHOR_CHANGE);
-            }
-        } else if (newsfeed == null && comment != null) {
-            if (!comment.getMember().getId().equals(loggedInUserId)) {
+        } else if (comment != null && !comment.getMember().getId().equals(loggedInUserId)) {
                 throw new NoAuthorizedException(NO_AUTHOR_CHANGE);
-            }
         }else {
             throw new NoAuthorizedException(NO_AUTHOR_CHANGE);
         }

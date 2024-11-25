@@ -11,6 +11,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.awt.color.CMMException;
+
 @Getter
 @Entity
 @Builder
@@ -31,19 +33,12 @@ public class Comment extends BaseEntity {
 
     private String contents;
 
-    public static Comment toEntity(CommentRequestDto dto) {
+    public static Comment commentToSave(CommentRequestDto dto, Newsfeed newsfeed, Member member) {
         return Comment.builder()
                 .contents(dto.getContents())
+                .feed(newsfeed)
+                .member(member)
                 .build();
-    }
-
-
-    public void setMember(Member member) {
-        this.member = member;
-    }
-
-    public void setNewsFeed(Newsfeed feed) {
-        this.feed = feed;
     }
 
     public void updateComment(CommentRequestDto dto) {
